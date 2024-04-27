@@ -16,6 +16,7 @@ endif()
 # Add tests
 add_executable(${PROJECT_NAME}_tests
     test_main.cpp
+    test_stub.cpp
 )
 
 # Link required libraries
