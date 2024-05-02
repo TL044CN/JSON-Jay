@@ -26,9 +26,16 @@ namespace JSONJay {
      * @brief XMLObject class
      */
     class XMLObject : public List {
-    private:
-        using attribute_t = std::pair<std::string, std::string>;
-        using data_t = std::variant<std::string, std::unique_ptr<XMLObject>>;
+    public:
+        /**
+         * @brief Tag class
+         * @details Represents an XML tag with its attributes
+         */
+        enum class DataType {
+            STRING, ///< String data type
+            OBJECT  ///< Object data type
+        };
+
     protected:
         /**
          * @brief Tag class
@@ -36,15 +43,48 @@ namespace JSONJay {
          */
         struct Tag {
             std::string name;
-            std::vector<attribute_t> attributes;
+            std::map<std::string, std::string> attributes;
 
-            Tag(const std::string& name, const std::vector<attribute_t>& attributes) : name(name), attributes(attributes) {}
+            Tag(const std::string& name, const std::map<std::string, std::string>& attributes) : name(name), attributes(attributes) {}
             Tag(const std::string& name) : name(name) {}
+
+            /**
+             * @brief Get the value of the given attribute
+             * 
+             * @param attribute the attribute name
+             * @return std::string the value of the attribute
+             */
+            void addAttribute(const std::pair<std::string, std::string>& attribute) {
+                attributes.insert(attribute);
+            }
+            
+            /**
+             * @brief Add an attribute to the tag
+             * 
+             * @param name the name of the attribute
+             * @param value the value of the attribute
+             */
+            void addAttribute(const std::string& name, const std::string& value) {
+                attributes.insert({name, value});
+            }
+
+            /**
+             * @brief Remove an attribute from the tag
+             * 
+             * @param attribute the attribute to remove
+             */
+            void removeAttribute(const std::string& attribute) {
+                attributes.erase(attribute);
+            }
         };
 
+        /**
+         * @brief Data class
+         * @details Represents the data Node in the XMLObject
+         */
         struct Data {
             Tag tag;
-            data_t data;
+            std::variant<std::string, std::unique_ptr<XMLObject>> data;
 
             Data(std::unique_ptr<XMLObject>&& data, const Tag& tag): tag(tag) {
                 this->data = std::move(data);
@@ -53,53 +93,78 @@ namespace JSONJay {
             Data(const std::string& data, const Tag& tag): tag(tag) {
                 this->data = data;
             }
-
+            
+            /**
+             * @brief Get the value of the given attribute
+             * 
+             * @param attribute the attribute name
+             * @return std::string the value of the attribute
+             */
             std::string getAttribute(const std::string& attribute) const {
-                for(const auto& attr : tag.attributes) {
-                    if(attr.first == attribute) {
-                        return attr.second;
-                    }
-                }
+                if(tag.attributes.find(attribute) != tag.attributes.end())
+                    return tag.attributes.at(attribute);
                 return "";
             }
 
-            void addAttribute(const attribute_t& attribute) {
-                tag.attributes.push_back(attribute);
+            /**
+             * @brief Add an attribute to the tag
+             * 
+             * @param attribute the attribute to add
+             */
+            void addAttribute(const std::pair<std::string, std::string>& attribute) {
+                tag.addAttribute(attribute);
             }
 
+            /**
+             * @brief Add an attribute to the tag
+             * 
+             * @param name the name of the attribute
+             * @param value the value of the attribute
+             */
+            void addAttribute(const std::string& name, const std::string& value) {
+                tag.addAttribute(name, value);
+            }
+
+            /**
+             * @brief Remove an attribute from the tag
+             * 
+             * @param attribute the attribute to remove
+             */
             void removeAttribute(const std::string& attribute) {
-                for(auto it = tag.attributes.begin(); it != tag.attributes.end(); ++it) {
-                    if(it->first == attribute) {
-                        tag.attributes.erase(it);
-                        return;
-                    }
-                }
+                tag.attributes.erase(attribute);
             }
 
+            /**
+             * @brief Get the attribute names
+             * 
+             * @return std::vector<std::string_view> the attribute names
+             */
             std::vector<std::string_view> getAttributeNames() const {
                 std::vector<std::string_view> names;
-                for(const auto& attr : tag.attributes) {
-                    names.push_back(attr.first);
+                for(const auto& [name, value] : tag.attributes) {
+                    names.push_back(name);
                 }
                 return names;
             }
 
+            /**
+             * @brief Get the attribute values
+             * 
+             * @return std::vector<std::string_view> the attribute values
+             */
+            DataType getDataType() const {
+                return std::holds_alternative<std::string>(data) ? DataType::STRING : DataType::OBJECT;
+            }
+
         };
     private:
-        using storage_t = std::vector<std::pair<Tag, data_t>>;
+        using iterator = std::vector<Data>::iterator;
+        using const_iterator = std::vector<Data>::const_iterator;
 
-    private:
-        storage_t mData;
+        std::vector<Data> mData;
         
     public:
         XMLObject();
-
-        /**
-         * @brief Get the data
-         * 
-         * @return const storage_t& the data
-         */
-        const storage_t& getData() const;
 
         /**
          * @brief   Push a new tag with a value to the object
@@ -175,7 +240,16 @@ namespace JSONJay {
          * @param attribute the attribute to add
          * @param index the index of the tag
          */
-        void addAttribute(const attribute_t& attribute, size_t index);
+        void addAttribute(const std::pair<std::string, std::string>& attribute, size_t index);
+
+        /**
+         * @brief   Add an attribute to a tag
+         * 
+         * @param name the name of the attribute
+         * @param value the value of the attribute
+         * @param index the index of the tag
+         */
+        void addAttribute(const std::string& name, const std::string& value, size_t index);
 
         /**
          * @brief remove the tag-object pair at the specified index
@@ -183,6 +257,13 @@ namespace JSONJay {
          * @param index the index of the tag-object pair to remove
          */
         void erase(size_t index);
+
+        /**
+         * @brief Get the size of the object
+         * 
+         * @return size_t the size of the object
+         */
+        size_t size() const;
 
         /**
          * @brief Get the tag at the specified index
@@ -198,7 +279,7 @@ namespace JSONJay {
          * @param index the index of the data
          * @return data_t the data
          */
-        data_t getData(size_t index) const;
+        Data getData(size_t index) const;
 
         /**
          * @brief Get the text at the specified index
@@ -216,6 +297,41 @@ namespace JSONJay {
          */
         std::reference_wrapper<const XMLObject> getObject(size_t index) const;
 
+        /**
+         * @brief Get the attribute at the specified index
+         * 
+         * @param index the index of the attribute
+         * @return std::map<std::string, std::string> the attribute
+         */
+        Data& operator[](size_t index);
+
+        /**
+         * @brief Get the begin iterator
+         * 
+         * @return iterator the begin iterator
+         */
+        iterator begin();
+
+        /**
+         * @brief Get the end iterator
+         * 
+         * @return iterator the end iterator
+         */
+        iterator end();
+
+        /**
+         * @brief Get the begin iterator
+         * 
+         * @return const_iterator the begin iterator
+         */
+        const_iterator begin() const;
+
+        /**
+         * @brief Get the end iterator
+         * 
+         * @return const_iterator the end iterator
+         */
+        const_iterator end() const;
     };
 
 } // namespace JSONJay

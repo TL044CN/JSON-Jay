@@ -15,7 +15,8 @@ endif()
 
 # Add tests
 add_executable(${PROJECT_NAME}_tests
-    test_main.cpp
+  test_XMLObject.cpp
+  test_main.cpp
 )
 
 # Link required libraries
