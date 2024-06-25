@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include "Common.hpp"
 #include "Exceptions.hpp"
 
 #include <variant>
@@ -21,55 +22,14 @@
 
 namespace JSONJay {
 
-class Object;
-class List;
-
-/**
- * @brief Concept for checking if a type is a list type
- *
- * @tparam T the type to check
- */
-template <typename T>
-concept IsListType = std::disjunction_v<
-    std::is_same<T, std::string>,
-    std::is_same<T, int>,
-    std::is_same<T, double>,
-    std::is_same<T, bool>,
-    std::is_same<T, Object*>,
-    std::is_same<T, List*>,
-    std::is_same<T, std::monostate>
->;
-
-/**
- * @brief Concept for checking if a type is stored as pointer in List
- *
- * @tparam T the type to check
- */
-template <typename T>
-concept IsListPtrType = std::disjunction_v<
-    std::is_same<T, Object>,
-    std::is_same<T, List>
->;
-
 /**
  * @brief List class
  */
 class List {
-public:
-    /**
-     * @brief Enum class for the data type of the list
-     */
-    enum class DataType {
-        STRING,     ///<< The element is a string
-        INT,        ///<< The element is an integer
-        DOUBLE,     ///<< The element is a double
-        BOOL,       ///<< The element is a boolean
-        OBJECT,     ///<< The element is an object
-        LIST,       ///<< The element is a list
-        NONE        ///<< The element is empty
-    };
-
 protected:
+    /**
+     * @brief The internal data type of the list
+     */
     using data_t = std::variant<std::string, int, double, bool, Object*, List*, std::monostate>;
 
 private:
@@ -97,7 +57,7 @@ public:
      * @param value the value to push
      */
     template<typename T>
-        requires IsListType<T>
+        requires IsValidDataType<T>
     void push_back(T value) {
         mData.push_back(data_t(value));
     }
@@ -109,7 +69,7 @@ public:
      * @param value the value to push
      */
     template<typename T>
-        requires IsListPtrType<T>
+        requires IsValidPtrDataType<T>
     void push_back(T&& value) {
         mData.push_back(new T(std::move(value)));
     }
@@ -128,10 +88,10 @@ public:
      * @return const data_t& the element
      */
     template<typename T>
-        requires IsListType<T> || IsListPtrType<T>
+        requires IsValidDataType<T> || IsValidPtrDataType<T>
     T & at(size_t index) {
         check_index(index);
-        if constexpr ( IsListPtrType<T> ) {
+        if constexpr ( IsValidPtrDataType<T> ) {
             if ( !std::holds_alternative<T*>(mData[index]) )
                 throw InvalidTypeException("Invalid type");
             return *std::get<T*>(mData.at(index));
@@ -162,8 +122,8 @@ public:
      * @return const T& the element
      */
     template <typename T>
-        requires IsListType<T> || IsListPtrType<T>
-    T & operator[](size_t index) {
+        requires IsValidDataType<T> || IsValidPtrDataType<T>
+    T& operator[](size_t index) {
         return at<T>(index);
     }
 
@@ -195,7 +155,7 @@ public:
      * @param value the value to insert
      */
     template<typename T>
-        requires IsListType<T>
+        requires IsValidDataType<T>
     void insert(size_t index, T value) {
         check_index(index);
         mData.insert(mData.begin() + index, value);
@@ -209,7 +169,7 @@ public:
      * @param value the value to insert
      */
     template<typename T>
-        requires IsListPtrType<T>
+        requires IsValidPtrDataType<T>
     void insert(size_t index, T&& value) {
         check_index(index);
         mData.insert(mData.begin() + index, new T(std::move(value)));
@@ -219,19 +179,19 @@ public:
      * @brief Get the type of an element
      *
      * @param index the index of the element
-     * @return DataType the type of the element
+     * @return BaseDataType the type of the element
      */
-    inline DataType get_type(size_t index) const {
+    inline BaseDataType get_type(size_t index) const {
         check_index(index);
-        auto visitor = [](auto&& arg) -> DataType {
+        auto visitor = [](auto&& arg) -> BaseDataType {
             using T = std::decay_t<decltype(arg)>;
-            if      constexpr ( std::is_same_v<T, std::string> )    return DataType::STRING;
-            else if constexpr ( std::is_same_v<T, int> )            return DataType::INT;
-            else if constexpr ( std::is_same_v<T, double> )         return DataType::DOUBLE;
-            else if constexpr ( std::is_same_v<T, bool> )           return DataType::BOOL;
-            else if constexpr ( std::is_same_v<T, Object*> )        return DataType::OBJECT;
-            else if constexpr ( std::is_same_v<T, List*> )          return DataType::LIST;
-            else if constexpr ( std::is_same_v<T, std::monostate> ) return DataType::NONE;
+            if      constexpr ( std::is_same_v<T, std::string> )    return BaseDataType::STRING;
+            else if constexpr ( std::is_same_v<T, int> )            return BaseDataType::INT;
+            else if constexpr ( std::is_same_v<T, double> )         return BaseDataType::DOUBLE;
+            else if constexpr ( std::is_same_v<T, bool> )           return BaseDataType::BOOL;
+            else if constexpr ( std::is_same_v<T, Object*> )        return BaseDataType::OBJECT;
+            else if constexpr ( std::is_same_v<T, List*> )          return BaseDataType::LIST;
+            else if constexpr ( std::is_same_v<T, std::monostate> ) return BaseDataType::NONE;
             throw InvalidTypeException("Invalid type");
             };
 

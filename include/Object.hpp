@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include "Common.hpp"
 #include "Exceptions.hpp"
 
 #include <variant>
@@ -21,33 +22,6 @@ namespace JSONJay {
 
 class List;
 class Object;
-
-/**
- * @brief Concept for checking if a type is a object type
- *
- * @tparam T the type to check
- */
-template <typename T>
-concept IsObjectType = std::disjunction_v<
-    std::is_same<T, std::string>,
-    std::is_same<T, int>,
-    std::is_same<T, double>,
-    std::is_same<T, bool>,
-    std::is_same<T, Object*>,
-    std::is_same<T, List*>,
-    std::is_same<T, std::monostate>
->;
-
-/**
- * @brief Concept for checking if a type is stored as pointer in Object
- *
- * @tparam T the type to check
- */
-template <typename T>
-concept IsObjectPtrType = std::disjunction_v<
-    std::is_same<T, Object>,
-    std::is_same<T, List>
->;
 
 /**
  * @brief Virtual Object base class
@@ -63,21 +37,10 @@ concept IsObjectPtrType = std::disjunction_v<
  * @see List
  */
 class Object {
-public:
-    /**
-     * @brief Enum class for the data type of the list
-     */
-    enum class DataType {
-        STRING,     ///<< The element is a string
-        INT,        ///<< The element is an integer
-        DOUBLE,     ///<< The element is a double
-        BOOL,       ///<< The element is a boolean
-        OBJECT,     ///<< The element is an object
-        LIST,       ///<< The element is a list
-        NONE        ///<< The element is empty
-    };
-
 protected:
+    /**
+     * @brief The internal data type of the Object
+     */
     using data_t = std::variant<std::string, int, double, bool, Object*, List*, std::monostate>;
 
 private:
@@ -119,10 +82,10 @@ public:
      * @return T& the value
      */
     template<typename T>
-    requires IsObjectType<T> || IsObjectPtrType<T>
+    requires IsValidDataType<T> || IsValidPtrDataType<T>
     T& at(const std::string& key) {
         check_key_exists(key, true);
-        if constexpr ( IsObjectPtrType<T> ) {
+        if constexpr ( IsValidPtrDataType<T> ) {
             if(!std::holds_alternative<T*>(mData.at(key)))
                 throw InvalidTypeException("Invalid type");
             return *std::get<T*>(mData.at(key));
@@ -141,7 +104,7 @@ public:
      * @return T& the value
      */
     template<typename T>
-        requires IsObjectType<T> || IsObjectPtrType<T>
+        requires IsValidDataType<T> || IsValidPtrDataType<T>
     T& operator[](const std::string& key) {
         return at<T>(key, T());
     }
@@ -154,35 +117,45 @@ public:
      * @param value the value
      */
     template<typename T>
-        requires IsObjectType<T> || IsObjectPtrType<T>
+        requires IsValidDataType<T>
     void set(const std::string& key, const T& value) {
         check_key_valid(key, true);
-        if constexpr ( IsObjectPtrType<T> ) {
-            if ( check_key_exists(key) ) delete std::get<T*>(mData.at(key));
-            mData.insert({ key, data_t(new T(value)) });
-        } else {
-            if ( check_key_exists(key) ) at<T>(key) = value;
-            else mData.insert({ key, data_t(value) });
-        }
+        if ( check_key_exists(key) ) at<T>(key) = value;
+        else mData.insert({ key, data_t(value) });
+    }
+
+    /**
+     * @brief Set a value
+     *
+     * @tparam T the type of the value
+     * @param key the key
+     * @param value the value
+     */
+    template<typename T>
+        requires IsValidPtrDataType<T>
+    void set(const std::string& key, T&& value) {
+        check_key_valid(key, true);
+        if ( check_key_exists(key) ) at<T*>(key) = value;
+        else mData.insert({ key, data_t(new T(value)) });
     }
 
     /**
      * @brief Get the type of an element
      *
      * @param index the index of the element
-     * @return DataType the type of the element
+     * @return BaseDataType the type of the element
      */
-    inline DataType get_type(const std::string& key) const {
+    inline BaseDataType get_type(const std::string& key) const {
         check_key_exists(key, true);
-        auto visitor = [](auto&& arg) -> DataType {
+        auto visitor = [](auto&& arg) -> BaseDataType {
             using T = std::decay_t<decltype(arg)>;
-            if      constexpr ( std::is_same_v<T, std::string> )    return DataType::STRING;
-            else if constexpr ( std::is_same_v<T, int> )            return DataType::INT;
-            else if constexpr ( std::is_same_v<T, double> )         return DataType::DOUBLE;
-            else if constexpr ( std::is_same_v<T, bool> )           return DataType::BOOL;
-            else if constexpr ( std::is_same_v<T, Object*> )        return DataType::OBJECT;
-            else if constexpr ( std::is_same_v<T, List*> )          return DataType::LIST;
-            else if constexpr ( std::is_same_v<T, std::monostate> ) return DataType::NONE;
+            if      constexpr ( std::is_same_v<T, std::string> )    return BaseDataType::STRING;
+            else if constexpr ( std::is_same_v<T, int> )            return BaseDataType::INT;
+            else if constexpr ( std::is_same_v<T, double> )         return BaseDataType::DOUBLE;
+            else if constexpr ( std::is_same_v<T, bool> )           return BaseDataType::BOOL;
+            else if constexpr ( std::is_same_v<T, Object*> )        return BaseDataType::OBJECT;
+            else if constexpr ( std::is_same_v<T, List*> )          return BaseDataType::LIST;
+            else if constexpr ( std::is_same_v<T, std::monostate> ) return BaseDataType::NONE;
             throw InvalidTypeException("Invalid type");
             };
 
