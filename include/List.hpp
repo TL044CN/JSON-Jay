@@ -89,54 +89,30 @@ private:
     void check_index(size_t index) const;
 
 public:
-    /**
-     * @brief Push a value to the list
-     *
-     * @param value the value to push
-     */
-    void push_back(const std::string& value);
 
     /**
      * @brief Push a value to the list
      *
+     * @tparam T the type of the value
      * @param value the value to push
      */
-    void push_back(int value);
+    template<typename T>
+        requires IsListType<T>
+    void push_back(T value) {
+        mData.push_back(data_t(value));
+    }
 
     /**
      * @brief Push a value to the list
      *
+     * @tparam T the type of the value
      * @param value the value to push
      */
-    void push_back(double value);
-
-    /**
-     * @brief Push a value to the list
-     *
-     * @param value the value to push
-     */
-    void push_back(bool value);
-
-    /**
-     * @brief Push a value to the list
-     *
-     * @param value the value to push
-     */
-    void push_back(Object&& value);
-
-    /**
-     * @brief Push a value to the list
-     *
-     * @param value the value to push
-     */
-    void push_back(List&& value);
-
-    /**
-     * @brief Push a value to the list
-     *
-     * @param value the value to push
-     */
-    void push_back(std::monostate value);
+    template<typename T>
+        requires IsListPtrType<T>
+    void push_back(T&& value) {
+        mData.push_back(new T(std::move(value)));
+    }
 
     /**
      * @brief Get the size of the list
@@ -153,7 +129,7 @@ public:
      */
     template<typename T>
         requires IsListType<T> || IsListPtrType<T>
-    T& at(size_t index) {
+    T & at(size_t index) {
         check_index(index);
         if constexpr ( IsListPtrType<T> ) {
             if ( !std::holds_alternative<T*>(mData[index]) )
@@ -187,7 +163,7 @@ public:
      */
     template <typename T>
         requires IsListType<T> || IsListPtrType<T>
-    T& operator[](size_t index) {
+    T & operator[](size_t index) {
         return at<T>(index);
     }
 
@@ -214,58 +190,30 @@ public:
     /**
      * @brief Insert a value to the list
      *
+     * @tparam T the type of the value
      * @param index the index to insert the value
      * @param value the value to insert
      */
-    void insert(size_t index, const std::string& value);
+    template<typename T>
+        requires IsListType<T>
+    void insert(size_t index, T value) {
+        check_index(index);
+        mData.insert(mData.begin() + index, value);
+    }
 
     /**
      * @brief Insert a value to the list
      *
+     * @tparam T the type of the value
      * @param index the index to insert the value
      * @param value the value to insert
      */
-    void insert(size_t index, int value);
-
-    /**
-     * @brief Insert a value to the list
-     *
-     * @param index the index to insert the value
-     * @param value the value to insert
-     */
-    void insert(size_t index, double value);
-
-    /**
-     * @brief Insert a value to the list
-     *
-     * @param index the index to insert the value
-     * @param value the value to insert
-     */
-    void insert(size_t index, bool value);
-
-    /**
-     * @brief Insert a value to the list
-     *
-     * @param index the index to insert the value
-     * @param value the value to insert
-     */
-    void insert(size_t index, Object&& value);
-
-    /**
-     * @brief Insert a value to the list
-     *
-     * @param index the index to insert the value
-     * @param value the value to insert
-     */
-    void insert(size_t index, List&& value);
-
-    /**
-     * @brief Insert a value to the list
-     *
-     * @param index the index to insert the value
-     * @param value the value to insert
-     */
-    void insert(size_t index, std::monostate value);
+    template<typename T>
+        requires IsListPtrType<T>
+    void insert(size_t index, T&& value) {
+        check_index(index);
+        mData.insert(mData.begin() + index, new T(std::move(value)));
+    }
 
     /**
      * @brief Get the type of an element

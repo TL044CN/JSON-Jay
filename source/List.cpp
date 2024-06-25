@@ -11,36 +11,9 @@ List::~List() {
 
 }
 
+
 void List::check_index(size_t index) const {
     if ( index >= mData.size() ) throw InvalidIndexException("Index out of bounds");
-}
-
-void List::push_back(const std::string& value) {
-    mData.push_back(data_t(value));
-}
-
-void List::push_back(int value) {
-    mData.push_back(value);
-}
-
-void List::push_back(double value) {
-    mData.push_back(value);
-}
-
-void List::push_back(bool value) {
-    mData.push_back(value);
-}
-
-void List::push_back(Object&& value) {
-    mData.push_back(new Object(std::move(value)));
-}
-
-void List::push_back(List&& value) {
-    mData.push_back(new List(std::move(value)));
-}
-
-void List::push_back(std::monostate value) {
-    mData.push_back(value);
 }
 
 size_t List::size() const {
@@ -57,42 +30,11 @@ bool List::empty() const {
 
 void List::erase(size_t index) {
     check_index(index);
+
+    if(std::holds_alternative<Object*>(mData[index])) delete std::get<Object*>(mData[index]);
+    if(std::holds_alternative<List*>(mData[index])) delete std::get<List*>(mData[index]);
+
     mData.erase(mData.begin() + index);
-}
-
-void List::insert(size_t index, const std::string& value) {
-    check_index(index);
-    mData.insert(mData.begin() + index, value);
-}
-
-void List::insert(size_t index, int value) {
-    check_index(index);
-    mData.insert(mData.begin() + index, value);
-}
-
-void List::insert(size_t index, double value) {
-    check_index(index);
-    mData.insert(mData.begin() + index, value);
-}
-
-void List::insert(size_t index, bool value) {
-    check_index(index);
-    mData.insert(mData.begin() + index, value);
-}
-
-void List::insert(size_t index, Object&& value) {
-    check_index(index);
-    mData.insert(mData.begin() + index, new Object(std::move(value)));
-}
-
-void List::insert(size_t index, List&& value) {
-    check_index(index);
-    mData.insert(mData.begin() + index, new List(std::move(value)));
-}
-
-void List::insert(size_t index, std::monostate value) {
-    check_index(index);
-    mData.insert(mData.begin() + index, value);
 }
 
 std::string& List::get_string(size_t index) {
