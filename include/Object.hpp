@@ -2,7 +2,7 @@
  * @file Object.hpp
  * @author TL044CN
  * @brief Object class header file
- * @version 0.1
+ * @version 0.3
  * @date 2024-04-25
  *
  * @copyright Copyright (c) 2024

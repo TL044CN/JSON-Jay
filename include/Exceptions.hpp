@@ -2,7 +2,7 @@
  * @file Exceptions.hpp
  * @author TL044CN
  * @brief Exceptions for the JSONJay library
- * @version 0.1
+ * @version 0.2
  * @date 2024-04-27
  *
  * @copyright Copyright (c) 2024

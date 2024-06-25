@@ -2,7 +2,7 @@
  * @file List.hpp
  * @author TL044CN
  * @brief  List class header file
- * @version 0.1
+ * @version 0.3
  * @date 2024-04-25
  *
  * @copyright Copyright (c) 2024
@@ -95,7 +95,7 @@ public:
      */
     template<typename T>
         requires IsValidDataType<T> || IsValidPtrDataType<T>
-    T & at(size_t index) {
+    T& at(size_t index) {
         check_index(index);
         if constexpr ( IsValidPtrDataType<T> ) {
             if ( !std::holds_alternative<T*>(mData[index]) )
@@ -106,7 +106,6 @@ public:
                 throw InvalidTypeException("Invalid type");
             return std::get<T>(mData.at(index));
         }
-
     }
 
     /**
