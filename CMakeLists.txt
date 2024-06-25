@@ -73,6 +73,7 @@ endif()
 set(${PROJECT_NAME}_SOURCES
     source/StreamReader.cpp
     source/StreamWriter.cpp
+    source/List.cpp
     source/XMLObject.cpp
 )
 

@@ -19,13 +19,14 @@
 
 #include "Object.hpp"
 #include "List.hpp"
+#include "Serializable.hpp"
 
 namespace JSONJay {
 
     /**
      * @brief XMLObject class
      */
-    class XMLObject : public List {
+    class XMLObject : public List, public Serializable<XMLObject> {
     public:
         /**
          * @brief Tag class
@@ -332,6 +333,21 @@ namespace JSONJay {
          * @return const_iterator the end iterator
          */
         const_iterator end() const;
+
+    protected:
+        /**
+         * @brief Serialize the object
+         * 
+         * @param writer the writer to write to
+         */
+        void serialize(const StreamWriter& writer) const override;
+
+        /**
+         * @brief Deserialize the object
+         * 
+         * @param reader the reader to read from
+         */
+        void deserialize(const StreamReader& reader) override;
     };
 
 } // namespace JSONJay
