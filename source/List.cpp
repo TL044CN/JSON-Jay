@@ -1,14 +1,22 @@
-#include "List.cpp"
+#include "List.hpp"
+#include "Object.hpp"
 
 namespace JSONJay {
 
+List::~List() {
+    for ( auto& element : mData ) {
+        if ( std::holds_alternative<Object*>(element) ) delete std::get<Object*>(element);
+        if ( std::holds_alternative<List*>(element) ) delete std::get<List*>(element);
+    }
+
+}
+
 void List::check_index(size_t index) const {
-    if ( index >= mData.size() )
-        throw InvalidIndexException("Index out of bounds");
+    if ( index >= mData.size() ) throw InvalidIndexException("Index out of bounds");
 }
 
 void List::push_back(const std::string& value) {
-    mData.push_back(value);
+    mData.push_back(data_t(value));
 }
 
 void List::push_back(int value) {
@@ -23,12 +31,12 @@ void List::push_back(bool value) {
     mData.push_back(value);
 }
 
-void List::push_back(const Object& value) {
-    mData.push_back(value);
+void List::push_back(Object&& value) {
+    mData.push_back(new Object(std::move(value)));
 }
 
-void List::push_back(const List& value) {
-    mData.push_back(value);
+void List::push_back(List&& value) {
+    mData.push_back(new List(std::move(value)));
 }
 
 void List::push_back(std::monostate value) {
@@ -72,14 +80,14 @@ void List::insert(size_t index, bool value) {
     mData.insert(mData.begin() + index, value);
 }
 
-void List::insert(size_t index, const Object& value) {
+void List::insert(size_t index, Object&& value) {
     check_index(index);
-    mData.insert(mData.begin() + index, value);
+    mData.insert(mData.begin() + index, new Object(std::move(value)));
 }
 
-void List::insert(size_t index, const List& value) {
+void List::insert(size_t index, List&& value) {
     check_index(index);
-    mData.insert(mData.begin() + index, value);
+    mData.insert(mData.begin() + index, new List(std::move(value)));
 }
 
 void List::insert(size_t index, std::monostate value) {
@@ -87,76 +95,34 @@ void List::insert(size_t index, std::monostate value) {
     mData.insert(mData.begin() + index, value);
 }
 
-List::Datatype List::get_type(size_t index) const {
+std::string& List::get_string(size_t index) {
     check_index(index);
-
-    auto visitor = [](auto&& arg) -> Datatype {
-        using T = std::decay_t<decltype(arg)>;
-        if constexpr ( std::is_same_v<T, std::string> )         return DataType::STRING;
-        else if constexpr ( std::is_same_v<T, int> )            return DataType::INT;
-        else if constexpr ( std::is_same_v<T, double> )         return DataType::DOUBLE;
-        else if constexpr ( std::is_same_v<T, bool> )           return DataType::BOOL;
-        else if constexpr ( std::is_same_v<T, Object> )         return DataType::OBJECT;
-        else if constexpr ( std::is_same_v<T, List> )           return DataType::LIST;
-        else if constexpr ( std::is_same_v<T, std::monostate> ) return DataType::NONE;
-        throw InvalidTypeException("Invalid type");
-    };
-
-    return std::visit(visitor, mData[index]);
+    return at<std::string>(index);
 }
 
-std::string& List::get_string(size_t index) const {
+int& List::get_int(size_t index) {
     check_index(index);
-
-    if ( std::holds_alternative<std::string>(mData[index]) )
-        return at(index);
-
-    return "";
+    return at<int>(index);
 }
 
-int& List::get_int(size_t index) const {
+double& List::get_double(size_t index) {
     check_index(index);
-
-    if ( std::holds_alternative<int>(mData[index]) )
-        return at(index);
-
-    return 0;
+    return at<double>(index);
 }
 
-double& List::get_double(size_t index) const {
+bool& List::get_bool(size_t index) {
     check_index(index);
-
-    if ( std::holds_alternative<double>(mData[index]) )
-        return at(index);
-
-    return 0.0;
+    return at<bool>(index);
 }
 
-bool& List::get_bool(size_t index) const {
+Object& List::get_object(size_t index) {
     check_index(index);
-
-    if ( std::holds_alternative<bool>(mData[index]) )
-        return at(index);
-
-    return false;
+    return *at<Object*>(index);
 }
 
-Object& List::get_object(size_t index) const {
+List& List::get_list(size_t index) {
     check_index(index);
-
-    if ( std::holds_alternative<Object>(mData[index]) )
-        return at(index);
-
-    return Object();
-}
-
-List& List::get_list(size_t index) const {
-    check_index(index);
-
-    if ( std::holds_alternative<List>(mData[index]) )
-        return at(index);
-
-    return List();
+    return *at<List*>(index);
 }
 
 } // namespace JSONJay

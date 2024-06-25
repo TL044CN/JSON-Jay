@@ -127,7 +127,7 @@ public:
             readRaw(size);
         
         for (uint32_t i = 0; i < size; i++) {
-            K key
+            K key;
             if constexpr (std::is_trivial_v<K>)
                 readRaw(key);
             else if constexpr (std::is_same_v<K, std::string>)
@@ -161,7 +161,7 @@ public:
             readRaw(size);
         
         for (uint32_t i = 0; i < size; i++) {
-            K key
+            K key;
             if constexpr (std::is_trivial_v<K>)
                 readRaw(key);
             else if constexpr (std::is_same_v<K, std::string>)

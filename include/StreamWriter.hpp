@@ -122,7 +122,7 @@ public:
     template<typename T>
         requires IsSerializable<T>
     void writeSerializable(const T& data) {
-        data::serialize(*this, data);
+        T::serialize(*this, data);
     }
 
     /**
@@ -141,7 +141,7 @@ public:
         if ( writeSize )
             writeRaw<uint32_t>(map.size());
         for ( const auto& [key, value] : map ) {
-            if constexpr ( std::is_trivial<Key>() )
+            if constexpr ( std::is_trivial<K>() )
                 writeRaw(key);
             else if constexpr ( std::is_same_v<K, std::string> )
                 writeString(key);
@@ -173,7 +173,7 @@ public:
         if ( writeSize )
             writeRaw<uint32_t>(map.size());
         for ( const auto& [key, value] : map ) {
-            if constexpr ( std::is_trivial<Key>() )
+            if constexpr ( std::is_trivial<K>() )
                 writeRaw(key);
             else if constexpr ( std::is_same_v<K, std::string> )
                 writeString(key);

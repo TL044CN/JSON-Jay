@@ -26,7 +26,7 @@ class List;
 
 /**
  * @brief Concept for checking if a type is a list type
- * 
+ *
  * @tparam T the type to check
  */
 template <typename T>
@@ -35,9 +35,20 @@ concept IsListType = std::disjunction_v<
     std::is_same<T, int>,
     std::is_same<T, double>,
     std::is_same<T, bool>,
-    std::is_same<T, Object>,
-    std::is_same<T, List>,
+    std::is_same<T, Object*>,
+    std::is_same<T, List*>,
     std::is_same<T, std::monostate>
+>;
+
+/**
+ * @brief Concept for checking if a type is stored as pointer in List
+ *
+ * @tparam T the type to check
+ */
+template <typename T>
+concept IsListPtrType = std::disjunction_v<
+    std::is_same<T, Object>,
+    std::is_same<T, List>
 >;
 
 /**
@@ -58,14 +69,16 @@ public:
         NONE        ///<< The element is empty
     };
 
-private:
-    using data_t = std::variant<std::string, int, double, bool, Object, List, std::monostate>;
+protected:
+    using data_t = std::variant<std::string, int, double, bool, Object*, List*, std::monostate>;
 
+private:
     std::vector<data_t> mData;
 
 public:
     List() = default;
-    ~List() = default;
+    List(List&&) = default;
+    ~List();
 
 private:
     /**
@@ -109,14 +122,14 @@ public:
      *
      * @param value the value to push
      */
-    void push_back(const Object& value);
+    void push_back(Object&& value);
 
     /**
      * @brief Push a value to the list
      *
      * @param value the value to push
      */
-    void push_back(const List& value);
+    void push_back(List&& value);
 
     /**
      * @brief Push a value to the list
@@ -138,28 +151,20 @@ public:
      * @param index the index of the element
      * @return const data_t& the element
      */
-    template<IsListType T>
+    template<typename T>
+        requires IsListType<T> || IsListPtrType<T>
     T& at(size_t index) {
-        if( index >= mData.size() )
-            throw InvalidIndexException("Index out of bounds");
-        if( std::holds_alternative<T>(mData[index]) )
-            return std::get<T>(mData[index]);
-        throw InvalidTypeException("Invalid type");
-    }
+        check_index(index);
+        if constexpr ( IsListPtrType<T> ) {
+            if ( !std::holds_alternative<T*>(mData[index]) )
+                throw InvalidTypeException("Invalid type");
+            return *std::get<T*>(mData.at(index));
+        } else {
+            if ( !std::holds_alternative<T>(mData[index]) )
+                throw InvalidTypeException("Invalid type");
+            return std::get<T>(mData.at(index));
+        }
 
-    /**
-     * @brief Access an element of the list
-     *
-     * @param index the index of the element
-     * @return const data_t& the element
-     */
-    template<IsListType T>
-    const T& at(size_t index) const {
-        if( index >= mData.size() )
-            throw InvalidIndexException("Index out of bounds");
-        if( std::holds_alternative<T>(mData[index]) )
-            return std::get<T>(mData[index]);
-        throw InvalidTypeException("Invalid type");
     }
 
     /**
@@ -168,34 +173,9 @@ public:
      * @param index the index of the element
      * @return data_t& the element
      */
-    data_t& operator[](size_t index) {
-        if ( index >= mData.size() )
-            throw InvalidIndexException("Index out of bounds");
-        return mData[index];
-    }
-
-    /**
-     * @brief Access an element of the list
-     *
-     * @param index the index of the element
-     * @return const data_t& the element
-     */
     const data_t& operator[](size_t index) const {
-        if ( index >= mData.size() )
-            throw InvalidIndexException("Index out of bounds");
+        check_index(index);
         return mData[index];
-    }
-
-    /**
-     * @brief Access an element of the list
-     *
-     * @tparam T the type of the element
-     * @param index the index of the element
-     * @return T& the element
-     */
-    template <IsListType T>
-    T& operator[](size_t index) {
-        return at<T>(index);
     }
 
     /**
@@ -205,8 +185,9 @@ public:
      * @param index the index of the element
      * @return const T& the element
      */
-    template <IsListType T>
-    const T& operator[](size_t index) const {
+    template <typename T>
+        requires IsListType<T> || IsListPtrType<T>
+    T& operator[](size_t index) {
         return at<T>(index);
     }
 
@@ -268,7 +249,7 @@ public:
      * @param index the index to insert the value
      * @param value the value to insert
      */
-    void insert(size_t index, const Object& value);
+    void insert(size_t index, Object&& value);
 
     /**
      * @brief Insert a value to the list
@@ -276,7 +257,7 @@ public:
      * @param index the index to insert the value
      * @param value the value to insert
      */
-    void insert(size_t index, const List& value);
+    void insert(size_t index, List&& value);
 
     /**
      * @brief Insert a value to the list
@@ -292,7 +273,27 @@ public:
      * @param index the index of the element
      * @return DataType the type of the element
      */
-    DataType get_type(size_t index) const;
+    inline DataType get_type(size_t index) const {
+        check_index(index);
+        auto visitor = [](auto&& arg) -> DataType {
+            using T = std::decay_t<decltype(arg)>;
+            if      constexpr ( std::is_same_v<T, std::string> )    return DataType::STRING;
+            else if constexpr ( std::is_same_v<T, int> )            return DataType::INT;
+            else if constexpr ( std::is_same_v<T, double> )         return DataType::DOUBLE;
+            else if constexpr ( std::is_same_v<T, bool> )           return DataType::BOOL;
+            else if constexpr ( std::is_same_v<T, Object*> )        return DataType::OBJECT;
+            else if constexpr ( std::is_same_v<T, List*> )          return DataType::LIST;
+            else if constexpr ( std::is_same_v<T, std::monostate> ) return DataType::NONE;
+            throw InvalidTypeException("Invalid type");
+            };
+
+        // This is a hack to remove the const qualifier.
+        // This is safe because we are not modifying the data.
+        auto& nonConstData = const_cast<std::vector<data_t>&>(mData);
+        auto& nonConstElement = nonConstData.at(index);
+
+        return std::visit(visitor, nonConstElement);
+    }
 
     /**
      * @brief Get a string from the list
@@ -300,7 +301,7 @@ public:
      * @param index the index of the string
      * @return std::string the string
      */
-    std::string& get_string(size_t index) const;
+    std::string& get_string(size_t index);
 
     /**
      * @brief Get an integer from the list
@@ -308,7 +309,7 @@ public:
      * @param index the index of the integer
      * @return int the integer
      */
-    int& get_int(size_t index) const;
+    int& get_int(size_t index);
 
     /**
      * @brief Get a double from the list
@@ -316,7 +317,7 @@ public:
      * @param index the index of the double
      * @return double the double
      */
-    double& get_double(size_t index) const;
+    double& get_double(size_t index);
 
     /**
      * @brief Get a boolean from the list
@@ -324,7 +325,7 @@ public:
      * @param index the index of the boolean
      * @return bool the boolean
      */
-    bool& get_bool(size_t index) const;
+    bool& get_bool(size_t index);
 
     /**
      * @brief Get an object from the list
@@ -332,7 +333,7 @@ public:
      * @param index the index of the object
      * @return Object the object
      */
-    Object& get_object(size_t index) const;
+    Object& get_object(size_t index);
 
     /**
      * @brief Get a list from the list
@@ -340,7 +341,7 @@ public:
      * @param index the index of the list
      * @return List the list
      */
-    List& get_list(size_t index) const;
+    List& get_list(size_t index);
 
 };
 
