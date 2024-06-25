@@ -13,6 +13,14 @@
 #include "Common.hpp"
 
 namespace JSONJay {
+
+/**
+ * @ingroup Serialization
+ * @brief abstract Serializable class
+ * @details The Serializable class is an abstract base class for serializing
+ *          and deserializing objects. The class provides a serialize and
+ *          deserialize method that must be implemented by the derived class.
+ */
 template <typename T>
 class Serializable {
 public:

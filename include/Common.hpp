@@ -2,7 +2,7 @@
  * @file Common.hpp
  * @author TL044CN
  * @brief Common header file for the JSONJay library
- * @version 0.2
+ * @version 0.3
  * @date 2024-04-25
  * 
  * @copyright Copyright (c) 2024
@@ -20,6 +20,8 @@ class StreamWriter;
 class StreamReader;
 
 /**
+ * @interface IsSerializable
+ * @ingroup Serialization
  * @brief checks if a type is serializable
  * @tparam T the type to check
  */
@@ -29,6 +31,8 @@ concept IsSerializable = requires(StreamWriter& writer, const T& t) {
 };
 
 /**
+ * @interface IsDeserializable
+ * @ingroup Serialization
  * @brief Checks if a type is deserializable
  * @tparam T the type to check
  */
@@ -38,8 +42,8 @@ concept IsDeserializable = requires(StreamReader& reader, T& t) {
 };
 
 /**
+ * @interface numerical
  * @brief Concept for checking if a type is numerical
- *
  * @tparam T the type to check
  */
 template <typename T>
@@ -49,8 +53,9 @@ class Object;
 class List;
 
 /**
+ * @interface IsValidDataType
+ * @ingroup StorageClasses
  * @brief Concept for checking if a type is a valid Storage Class data type
- *
  * @tparam T the type to check
  */
 template <typename T>
@@ -65,8 +70,9 @@ concept IsValidDataType = std::disjunction_v<
 >;
 
 /**
+ * @interface IsValidPtrDataType
+ * @ingroup StorageClasses
  * @brief Concept for checking if a type is stored as pointer in the Storage Classes
- *
  * @tparam T the type to check
  */
 template <typename T>
@@ -76,6 +82,7 @@ concept IsValidPtrDataType = std::disjunction_v<
 >;
 
 /**
+ * @ingroup StorageClasses
  * @brief Enum class for the data type of the Storage Classes
  */
 enum class BaseDataType {

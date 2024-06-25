@@ -22,7 +22,11 @@
 namespace JSONJay {
 
 /**
+ * @ingroup Serialization
  * @brief abstract StreamWriter base class
+ * @details The StreamWriter class is an abstract base class for writing
+ *          data to a stream. The stream can be a file, a network socket
+ *          or any other destination for data.
  */
 class StreamWriter {
 public:

@@ -19,6 +19,14 @@
 #include "Common.hpp"
 
 namespace JSONJay {
+
+/**
+ * @ingroup Serialization
+ * @brief abstract StreamReader base class
+ * @details The StreamReader class is an abstract base class for reading
+ *          data from a stream. The stream can be a file, a network socket
+ *          or any other source of data.
+ */
 class StreamReader {
 public:
     /**

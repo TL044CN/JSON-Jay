@@ -24,17 +24,13 @@ class List;
 class Object;
 
 /**
- * @brief Virtual Object base class
- * @note Every object in the JSONJay library must inherit from this class
- * @details This class is the base class for all objects in the JSONJay library.
- *          It provides a common interface for all objects.
- *          An Object is a map of key-value pairs, where the key is a string
- *          The inherited classes must manage the data in their own way.
- *          Another important class is the List class, which is used to store
- *          lists of values.
- * @see XMLObject
- * @see JSONObject
- * @see List
+ * @ingroup StorageClasses
+ * @brief Object class
+ * @details The Object class is used to store key-value pairs. The keys are
+ *          strings and the values can be any of the supported data types.
+ * @see IsValidDataType
+ * @see IsValidPtrDataType
+ * @see BaseDataType
  */
 class Object {
 protected:

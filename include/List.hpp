@@ -23,7 +23,13 @@
 namespace JSONJay {
 
 /**
+ * @ingroup StorageClasses
  * @brief List class
+ * @details The List class is used to store a list of values. The values can be
+ *          any of the supported data types.
+ * @see IsValidDataType
+ * @see IsValidPtrDataType
+ * @see BaseDataType
  */
 class List {
 protected:
