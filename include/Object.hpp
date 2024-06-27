@@ -143,24 +143,13 @@ public:
      */
     inline BaseDataType get_type(const std::string& key) const {
         check_key_exists(key, true);
-        auto visitor = [](auto&& arg) -> BaseDataType {
-            using T = std::decay_t<decltype(arg)>;
-            if      constexpr ( std::is_same_v<T, std::string> )    return BaseDataType::STRING;
-            else if constexpr ( std::is_same_v<T, int> )            return BaseDataType::INT;
-            else if constexpr ( std::is_same_v<T, double> )         return BaseDataType::DOUBLE;
-            else if constexpr ( std::is_same_v<T, bool> )           return BaseDataType::BOOL;
-            else if constexpr ( std::is_same_v<T, Object*> )        return BaseDataType::OBJECT;
-            else if constexpr ( std::is_same_v<T, List*> )          return BaseDataType::LIST;
-            else if constexpr ( std::is_same_v<T, std::monostate> ) return BaseDataType::NONE;
-            throw InvalidTypeException("Invalid type");
-            };
 
         // This is a hack to remove the const qualifier.
         // This is safe because we are not modifying the data.
         auto& nonConstData = const_cast<std::map<std::string, data_t>&>(mData);
         auto& nonConstElement = nonConstData.at(key);
 
-        return std::visit(visitor, nonConstElement);
+        return JSONJay::get_type(nonConstElement);
     }
 
     /**

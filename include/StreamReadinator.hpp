@@ -1,7 +1,7 @@
 /**
- * @file StreamReader.hpp
+ * @file StreamReadinator.hpp
  * @author TL044CN (tl044cn@shodan.fyi)
- * @brief abstract StreamReader base class
+ * @brief abstract StreamReadinator base class
  * @version 0.1
  * @date 2024-06-24
  * 
@@ -22,17 +22,17 @@ namespace JSONJay {
 
 /**
  * @ingroup Serialization
- * @brief abstract StreamReader base class
- * @details The StreamReader class is an abstract base class for reading
+ * @brief abstract StreamReadinator base class
+ * @details The StreamReadinator class is an abstract base class for reading
  *          data from a stream. The stream can be a file, a network socket
  *          or any other source of data.
  */
-class StreamReader {
+class StreamReadinator {
 public:
     /**
-     * @brief Destroy the StreamReader object
+     * @brief Destroy the StreamReadinator object
      */
-    virtual ~StreamReader() = default;
+    virtual ~StreamReadinator() = default;
 
     /**
      * @brief checks if the stream is good

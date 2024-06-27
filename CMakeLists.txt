@@ -71,8 +71,11 @@ if(NOT IS_SUBMODULE)
 endif()
 
 set(${PROJECT_NAME}_SOURCES
-    source/StreamReader.cpp
-    source/StreamWriter.cpp
+    source/Common.cpp
+    source/StreamReadinator.cpp
+    source/StreamWritinator.cpp
+    source/FileStreamReadinator.cpp
+    source/FileStreamWritinator.cpp
     source/List.cpp
     source/Object.cpp
     source/XMLObject.cpp

@@ -54,7 +54,40 @@ private:
      */
     void check_index(size_t index) const;
 
+    /**
+     * @brief Iterator Class of the List
+     */
+    class Iterator {
+    private:
+        std::vector<data_t>::iterator mIt;
+
+    public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = std::pair<data_t&, BaseDataType>;
+
+        explicit Iterator(std::vector<data_t>::iterator it);
+
+        Iterator& operator++();
+        Iterator operator++(int);
+        bool operator==(const Iterator& other);
+        value_type operator*();
+    };
+
 public:
+
+    /**
+     * @brief Get the begin iterator of the list
+     *
+     * @return Iterator the begin iterator
+     */
+    Iterator begin();
+
+    /**
+     * @brief Get the end iterator of the list
+     *
+     * @return Iterator the end iterator
+     */
+    Iterator end();
 
     /**
      * @brief Push a value to the list
@@ -95,7 +128,7 @@ public:
      */
     template<typename T>
         requires IsValidDataType<T> || IsValidPtrDataType<T>
-    T& at(size_t index) {
+    T & at(size_t index) {
         check_index(index);
         if constexpr ( IsValidPtrDataType<T> ) {
             if ( !std::holds_alternative<T*>(mData[index]) )
@@ -128,7 +161,7 @@ public:
      */
     template <typename T>
         requires IsValidDataType<T> || IsValidPtrDataType<T>
-    T& operator[](size_t index) {
+    T & operator[](size_t index) {
         return at<T>(index);
     }
 
@@ -188,24 +221,13 @@ public:
      */
     inline BaseDataType get_type(size_t index) const {
         check_index(index);
-        auto visitor = [](auto&& arg) -> BaseDataType {
-            using T = std::decay_t<decltype(arg)>;
-            if      constexpr ( std::is_same_v<T, std::string> )    return BaseDataType::STRING;
-            else if constexpr ( std::is_same_v<T, int> )            return BaseDataType::INT;
-            else if constexpr ( std::is_same_v<T, double> )         return BaseDataType::DOUBLE;
-            else if constexpr ( std::is_same_v<T, bool> )           return BaseDataType::BOOL;
-            else if constexpr ( std::is_same_v<T, Object*> )        return BaseDataType::OBJECT;
-            else if constexpr ( std::is_same_v<T, List*> )          return BaseDataType::LIST;
-            else if constexpr ( std::is_same_v<T, std::monostate> ) return BaseDataType::NONE;
-            throw InvalidTypeException("Invalid type");
-            };
-
+        
         // This is a hack to remove the const qualifier.
         // This is safe because we are not modifying the data.
         auto& nonConstData = const_cast<std::vector<data_t>&>(mData);
         auto& nonConstElement = nonConstData.at(index);
 
-        return std::visit(visitor, nonConstElement);
+        return JSONJay::get_type(nonConstElement);
     }
 
     /**

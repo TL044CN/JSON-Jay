@@ -4,9 +4,9 @@
  * @brief Common header file for the JSONJay library
  * @version 0.3
  * @date 2024-04-25
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 
 #pragma once
@@ -16,8 +16,8 @@
 
 namespace JSONJay {
 
-class StreamWriter;
-class StreamReader;
+class StreamWritinator;
+class StreamReadinator;
 
 /**
  * @interface IsSerializable
@@ -26,7 +26,7 @@ class StreamReader;
  * @tparam T the type to check
  */
 template<typename T>
-concept IsSerializable = requires(StreamWriter& writer, const T& t) {
+concept IsSerializable = requires(StreamWritinator & writer, const T & t) {
     { T::serialize(writer, t) };
 };
 
@@ -37,7 +37,7 @@ concept IsSerializable = requires(StreamWriter& writer, const T& t) {
  * @tparam T the type to check
  */
 template<typename T>
-concept IsDeserializable = requires(StreamReader& reader, T& t) {
+concept IsDeserializable = requires(StreamReadinator & reader, T & t) {
     { T::deserialize(reader, t) };
 };
 
@@ -95,5 +95,18 @@ enum class BaseDataType {
     NONE        ///< The element is empty
 };
 
+/**
+ * @ingroup StorageClasses
+ * @brief the storage type for the Storage Classes
+ */
+using storage_t = std::variant<std::string, int, double, bool, Object*, List*, std::monostate>;
+
+/**
+ * @brief Get the type of the data
+ * 
+ * @param data the data to get the type of
+ * @return BaseDataType the type of the data
+ */
+BaseDataType get_type(storage_t& data);
 
 } // namespace JSONJay

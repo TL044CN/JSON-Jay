@@ -16,6 +16,36 @@ void List::check_index(size_t index) const {
     if ( index >= mData.size() ) throw InvalidIndexException("Index out of bounds");
 }
 
+List::Iterator::Iterator(std::vector<data_t>::iterator it) : mIt(it) {}
+
+List::Iterator& List::Iterator::operator++() {
+    ++mIt;
+    return *this;
+}
+
+List::Iterator List::Iterator::operator++(int) {
+    Iterator it = *this;
+    ++mIt;
+    return it;
+}
+
+bool List::Iterator::operator==(const Iterator& other) {
+    return mIt == other.mIt;
+}
+
+List::Iterator::value_type List::Iterator::operator*() {
+    return {*mIt, JSONJay::get_type(*mIt)};
+}
+
+
+List::Iterator List::begin() {
+    return Iterator(mData.begin());
+}
+
+List::Iterator List::end() {
+    return Iterator(mData.end());
+}
+
 size_t List::size() const {
     return mData.size();
 }

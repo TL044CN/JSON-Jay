@@ -1,7 +1,7 @@
 /**
- * @file StreamWriter.hpp
+ * @file StreamWritinator.hpp
  * @author TL044CN (tl044cn@shodan.fyi)
- * @brief abstract StreamWriter base class
+ * @brief abstract StreamWritinator base class
  * @version 0.1
  * @date 2024-06-24
  *
@@ -28,12 +28,12 @@ namespace JSONJay {
  *          data to a stream. The stream can be a file, a network socket
  *          or any other destination for data.
  */
-class StreamWriter {
+class StreamWritinator {
 public:
     /**
-     * @brief Destroy the StreamWriter object
+     * @brief Destroy the StreamWritinator object
      */
-    virtual ~StreamWriter() = default;
+    virtual ~StreamWritinator() = default;
 
     /**
      * @brief checks if the stream is good

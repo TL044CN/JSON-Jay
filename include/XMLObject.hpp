@@ -2,7 +2,7 @@
  * @file XMLObject.hpp
  * @author TL044CN
  * @brief XMLObject Specification
- * @version 0.1
+ * @version 0.2
  * @date 2024-04-27
  * 
  * @copyright Copyright (c) 2024
@@ -17,16 +17,19 @@
 #include <memory>
 #include <string_view>
 
-#include "Object.hpp"
-#include "List.hpp"
 #include "Serializable.hpp"
 
 namespace JSONJay {
 
+
     /**
+     * 
+     * @ingroup StorageClasses
      * @brief XMLObject class
+     * @details The XMLObject class is used to store an XML object. The object
+     *          can have multiple tags with attributes and values.
      */
-    class XMLObject : public List, public Serializable<XMLObject> {
+    class XMLObject : public Serializable<XMLObject> {
     public:
         /**
          * @brief Tag class
@@ -37,17 +40,23 @@ namespace JSONJay {
             OBJECT  ///< Object data type
         };
 
+
     protected:
         /**
          * @brief Tag class
          * @details Represents an XML tag with its attributes
          */
         struct Tag {
-            std::string name;
-            std::map<std::string, std::string> attributes;
+            using storage_t = std::map<std::string, std::string, std::less>;
 
-            Tag(const std::string& name, const std::map<std::string, std::string>& attributes) : name(name), attributes(attributes) {}
-            Tag(const std::string& name) : name(name) {}
+            std::string name;
+            storage_t attributes;
+
+            Tag(const std::string& name, const storage_t& attributes)
+                : name(name), attributes(attributes) {}
+
+            explicit Tag(const std::string& name)
+                : name(name) {}
 
             /**
              * @brief Get the value of the given attribute
@@ -91,9 +100,7 @@ namespace JSONJay {
                 this->data = std::move(data);
             }
 
-            Data(const std::string& data, const Tag& tag): tag(tag) {
-                this->data = data;
-            }
+            Data(const std::string& data, const Tag& tag): tag(tag), data(data) {}
             
             /**
              * @brief Get the value of the given attribute
@@ -157,6 +164,36 @@ namespace JSONJay {
                 return std::holds_alternative<std::string>(data) ? DataType::STRING : DataType::OBJECT;
             }
 
+            /**
+             * @brief convert the Data object into a string including tag and values
+             *        including children
+             * 
+             * @return std::vector<std::string_view> the attribute values
+             */
+            std::string toString() const;
+
+
+            /**
+             * @brief convert the Data object into a string excluding tag and values
+             * 
+             * @return std::vector<std::string_view> the attribute values
+             */
+            std::string toInnerString() const;
+
+
+            /**
+             * @brief Serialize the Data
+             * 
+             * @param writer the writer to write to
+             */
+            void serialize(const StreamWritinator& writer) const;
+
+            /**
+             * @brief Deserialize the Data
+             * 
+             * @param reader the reader to read from
+             */
+            void deserialize(const StreamReadinator& reader);
         };
     private:
         using iterator = std::vector<Data>::iterator;
@@ -165,7 +202,7 @@ namespace JSONJay {
         std::vector<Data> mData;
         
     public:
-        XMLObject();
+//        XMLObject();
 
         /**
          * @brief   Push a new tag with a value to the object
@@ -283,12 +320,19 @@ namespace JSONJay {
         Data getData(size_t index) const;
 
         /**
-         * @brief Get the text at the specified index
+         * @brief Get the Text representation of the object
          * 
-         * @param index the index of the text
          * @return std::string the text
          */
-        std::string getText(size_t index) const;
+        std::string toString() const;
+
+        /**
+         * @brief Get the inner string of the object
+         * 
+         * @param index the index of the object
+         * @return std::string the inner string
+         */
+        std::string innerString(size_t index) const;
 
         /**
          * @brief Get the object at the specified index
@@ -340,14 +384,14 @@ namespace JSONJay {
          * 
          * @param writer the writer to write to
          */
-        void serialize(const StreamWriter& writer) const override;
+        void serialize(const StreamWritinator& writer) const override;
 
         /**
          * @brief Deserialize the object
          * 
          * @param reader the reader to read from
          */
-        void deserialize(const StreamReader& reader) override;
+        void deserialize(const StreamReadinator& reader) override;
     };
 
 } // namespace JSONJay

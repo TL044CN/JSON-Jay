@@ -30,7 +30,7 @@ public:
      * @param writer the writer to write to
      * @param object the object to serialize
      */
-    static void serialize(const StreamWriter& writer, const T& object) {
+    static void serialize(const StreamWritinator& writer, const T& object) {
         object.serialize(writer);
     }
 
@@ -40,7 +40,7 @@ public:
      * @param reader the reader to read from
      * @param object the object to deserialize
      */
-    static void deserialize(const StreamReader& reader, T& object) {
+    static void deserialize(const StreamReadinator& reader, T& object) {
         object.deserialize(reader);
     }
 
@@ -50,14 +50,14 @@ protected:
      * 
      * @param writer the writer to write to
      */
-    virtual void serialize(const StreamWriter& writer) const = 0;
+    virtual void serialize(const StreamWritinator& writer) const = 0;
 
     /**
      * @brief Deserialize the object
      * 
      * @param reader the reader to read from
      */
-    virtual void deserialize(const StreamReader& reader) = 0;
+    virtual void deserialize(const StreamReadinator& reader) = 0;
 };
 
 } // namespace JSONJay
