@@ -3,14 +3,12 @@ set(CMAKE_CXX_STANDARD 20)
 set(CXX_STANDARD_REQUIRED ON)
 
 # find out wether this project is a submodule or not
-# find out wether this project is a submodule or not
 if(DEFINED PROJECT_NAME AND NOT "${PROJECT_NAME}" STREQUAL "")
     set(IS_SUBMODULE ON)
 else()
     set(IS_SUBMODULE OFF)
 endif()
 
-# get the version from git
 # get the version from git
 find_package(Git)
 if(GIT_FOUND)
@@ -38,6 +36,10 @@ else()
     set(GIT_TAG_VERSION "1.0.0")
 endif()
 
+# sanitize the version to prevent cmake errors
+string(REGEX REPLACE "[^0-9.]" "" SANITIZED_VERSION "${GIT_TAG_VERSION}")
+
+# declare the project
 project(JSONJay
     VERSION ${SANITIZED_VERSION}
     DESCRIPTION "A simple Serialization Library for C++ (mainly JSON)"
