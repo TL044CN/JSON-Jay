@@ -78,7 +78,7 @@ public:
      * @return T& the value
      */
     template<typename T>
-    requires IsValidDataType<T> || IsValidPtrDataType<T>
+        requires IsValidDataType<T> || IsValidPtrDataType<T>
     T& at(const std::string& key) {
         check_key_exists(key, true);
         if constexpr ( IsValidPtrDataType<T> ) {
@@ -138,11 +138,22 @@ public:
     /**
      * @brief Get the type of an element
      *
-     * @param index the index of the element
+     * @param key the key of the element
      * @return BaseDataType the type of the element
      */
     inline BaseDataType get_type(const std::string& key) const {
         check_key_exists(key, true);
+        auto visitor = [](auto&& arg) -> BaseDataType {
+            using T = std::decay_t<decltype(arg)>;
+            if      constexpr ( std::is_same_v<T, std::string> )    return BaseDataType::STRING;
+            else if constexpr ( std::is_same_v<T, int> )            return BaseDataType::INT;
+            else if constexpr ( std::is_same_v<T, double> )         return BaseDataType::DOUBLE;
+            else if constexpr ( std::is_same_v<T, bool> )           return BaseDataType::BOOL;
+            else if constexpr ( std::is_same_v<T, Object*> )        return BaseDataType::OBJECT;
+            else if constexpr ( std::is_same_v<T, List*> )          return BaseDataType::LIST;
+            else if constexpr ( std::is_same_v<T, std::monostate> ) return BaseDataType::NONE;
+            throw InvalidTypeException("Invalid type");
+        };
 
         // This is a hack to remove the const qualifier.
         // This is safe because we are not modifying the data.

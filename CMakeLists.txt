@@ -78,7 +78,6 @@ set(${PROJECT_NAME}_SOURCES
     source/FileStreamWritinator.cpp
     source/List.cpp
     source/Object.cpp
-    source/XMLObject.cpp
 )
 
 if(${PROJECT_NAME}_BUILD_SHARED)

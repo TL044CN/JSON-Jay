@@ -48,7 +48,7 @@ public:
      *
      * @return uint64_t the current stream position
      */
-    virtual uint64_t getStreamPosition() const = 0;
+    virtual uint64_t getStreamPosition() = 0;
 
     /**
      * @brief sets the stream position

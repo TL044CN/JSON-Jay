@@ -29,7 +29,7 @@ public:
     ~FileStreamWritinator() override;
 
     bool isStreamGood() const override;
-    uint64_t getStreamPosition() const override;
+    uint64_t getStreamPosition() override;
     void setStreamPosition(uint64_t position) override;
     bool writeData(const char* data, uint64_t size) override;
 };

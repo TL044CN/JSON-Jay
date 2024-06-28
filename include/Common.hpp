@@ -10,6 +10,7 @@
  */
 
 #pragma once
+#include <type_traits>
 #include <concepts>
 #include <string>
 #include <variant>
@@ -23,10 +24,12 @@ class StreamReadinator;
  * @interface IsSerializable
  * @ingroup Serialization
  * @brief checks if a type is serializable
+ * 
+ * @tparam Writinator the type of the writer to use
  * @tparam T the type to check
  */
 template<typename T>
-concept IsSerializable = requires(StreamWritinator & writer, const T & t) {
+concept IsSerializable = requires(StreamWritinator* writer, const T& t) {
     { T::serialize(writer, t) };
 };
 
@@ -34,16 +37,19 @@ concept IsSerializable = requires(StreamWritinator & writer, const T & t) {
  * @interface IsDeserializable
  * @ingroup Serialization
  * @brief Checks if a type is deserializable
+ * 
+ * @tparam Readinator the type of the reader to use
  * @tparam T the type to check
  */
 template<typename T>
-concept IsDeserializable = requires(StreamReadinator & reader, T & t) {
+concept IsDeserializable = requires(StreamReadinator* reader, T& t) {
     { T::deserialize(reader, t) };
 };
 
 /**
  * @interface numerical
  * @brief Concept for checking if a type is numerical
+ * 
  * @tparam T the type to check
  */
 template <typename T>
@@ -56,6 +62,7 @@ class List;
  * @interface IsValidDataType
  * @ingroup StorageClasses
  * @brief Concept for checking if a type is a valid Storage Class data type
+ * 
  * @tparam T the type to check
  */
 template <typename T>
@@ -73,6 +80,7 @@ concept IsValidDataType = std::disjunction_v<
  * @interface IsValidPtrDataType
  * @ingroup StorageClasses
  * @brief Concept for checking if a type is stored as pointer in the Storage Classes
+ * 
  * @tparam T the type to check
  */
 template <typename T>
@@ -103,7 +111,7 @@ using storage_t = std::variant<std::string, int, double, bool, Object*, List*, s
 
 /**
  * @brief Get the type of the data
- * 
+ *
  * @param data the data to get the type of
  * @return BaseDataType the type of the data
  */

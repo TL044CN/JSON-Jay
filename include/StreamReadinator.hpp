@@ -47,7 +47,7 @@ public:
      *
      * @return uint64_t the current stream position
      */
-    virtual uint64_t getStreamPosition() const = 0;
+    virtual uint64_t getStreamPosition() = 0;
 
     /**
      * @brief sets the stream position
@@ -63,6 +63,22 @@ public:
      * @param size the size of the buffer
      */
     virtual bool readData(char* data, uint64_t size) = 0;
+
+    /**
+     * @brief reads data from the stream until a delimiter is found
+     *
+     * @param data the buffer to read into
+     * @param delim the delimiter to read until
+     */
+    virtual bool readUntil(std::vector<char>& data, char delim);
+
+    /**
+     * @brief reads data from the stream until a delimiter is found
+     *
+     * @param data the buffer to read into
+     * @param delim the delimiter to read until
+     */
+    virtual bool readUntil(std::vector<char>& data, std::string delim);
 
     /**
      * @brief returns weather the stream is good

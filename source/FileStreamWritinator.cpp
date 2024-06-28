@@ -15,19 +15,8 @@ bool FileStreamWritinator::isStreamGood() const {
     return mFile.good();
 }
 
-uint64_t FileStreamWritinator::getStreamPosition() const {
-
-    auto state = mFile.rdstate();
-    if(state & std::ios_base::badbit)
-        throw std::ios_base::failure("Bad bit set");
-
-    if(state & std::ios_base::failbit)
-        throw std::ios_base::failure("Fail bit set");
-
-    // this would be undefined behavior if the failbit is set.
-    // since we check that beforehand, this is fine.
-    auto pos = const_cast<std::ofstream*>(&mFile)->tellp();
-    return pos;
+uint64_t FileStreamWritinator::getStreamPosition() {
+    return mFile.tellp();
 }
 
 void FileStreamWritinator::setStreamPosition(uint64_t position) {
@@ -36,7 +25,7 @@ void FileStreamWritinator::setStreamPosition(uint64_t position) {
 
 bool FileStreamWritinator::writeData(const char* data, uint64_t size) {
     mFile.write(data, size);
-    return mFile.good();
+    return true;
 }
 
 } // namespace JSONJay

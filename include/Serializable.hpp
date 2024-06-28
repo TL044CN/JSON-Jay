@@ -24,23 +24,30 @@ namespace JSONJay {
 template <typename T>
 class Serializable {
 public:
+
     /**
-     * @brief Serializes an object
+     * @brief Serialize an object
      * 
+     * @tparam WriterType the type of writer to use
      * @param writer the writer to write to
      * @param object the object to serialize
      */
-    static void serialize(const StreamWritinator& writer, const T& object) {
+    template <typename WriterType>
+        requires std::derived_from<WriterType, StreamWritinator>
+    static void serialize(StreamWritinator* writer, const T& object) {
         object.serialize(writer);
     }
 
     /**
      * @brief Deserializes an object
      * 
+     * @tparam ReaderType the type of reader to use
      * @param reader the reader to read from
      * @param object the object to deserialize
      */
-    static void deserialize(const StreamReadinator& reader, T& object) {
+    template <typename ReaderType>
+        requires std::derived_from<ReaderType, StreamReadinator>
+    static void deserialize(StreamReadinator* reader, T& object) {
         object.deserialize(reader);
     }
 
@@ -50,14 +57,14 @@ protected:
      * 
      * @param writer the writer to write to
      */
-    virtual void serialize(const StreamWritinator& writer) const = 0;
+    virtual void serialize(StreamWritinator* writer) const = 0;
 
     /**
      * @brief Deserialize the object
      * 
      * @param reader the reader to read from
      */
-    virtual void deserialize(const StreamReadinator& reader) = 0;
+    virtual void deserialize(StreamReadinator* reader) = 0;
 };
 
 } // namespace JSONJay

@@ -15,19 +15,9 @@ bool FileStreamReadinator::isStreamGood() const {
     return mFile.good();
 }
 
-uint64_t FileStreamReadinator::getStreamPosition() const {
+uint64_t FileStreamReadinator::getStreamPosition() {
 
-    auto state = mFile.rdstate();
-    if(state & std::ios_base::badbit)
-        throw std::ios_base::failure("Bad bit set");
-
-    if(state & std::ios_base::failbit)
-        throw std::ios_base::failure("Fail bit set");
-
-    // this would be undefined behavior if the failbit is set.
-    // since we check that beforehand, this is fine.
-    auto pos = const_cast<std::ifstream*>(&mFile)->tellg();
-    return pos;
+    return mFile.tellg();
 }
 
 void FileStreamReadinator::setStreamPosition(uint64_t position) {
@@ -36,7 +26,7 @@ void FileStreamReadinator::setStreamPosition(uint64_t position) {
 
 bool FileStreamReadinator::readData(char* data, uint64_t size) {
     mFile.read(data, size);
-    return mFile.good();
+    return true;
 }
 
 } // namespace JSONJay

@@ -16,6 +16,11 @@
 
 namespace JSONJay {
 
+/**
+ * @ingroup Serialization
+ * @brief The FileStreamReadinator class is a class that reads data from a file
+ * @details The FileStreamReadinator class is a class that reads binary data from a file
+ */
 class FileStreamReadinator : public StreamReadinator {
 private:
     std::ifstream mFile;
@@ -25,7 +30,7 @@ public:
     ~FileStreamReadinator() override;
 
     bool isStreamGood() const override;
-    uint64_t getStreamPosition() const override;
+    uint64_t getStreamPosition() override;
     void setStreamPosition(uint64_t position) override;
     bool readData(char* data, uint64_t size) override;
 
