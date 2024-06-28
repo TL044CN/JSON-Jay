@@ -38,10 +38,6 @@ else()
     set(GIT_TAG_VERSION "1.0.0")
 endif()
 
-# sanitize the version to prevent cmake errors
-string(REGEX REPLACE "[^0-9.]" "" SANITIZED_VERSION "${GIT_TAG_VERSION}")
-
-# declare the project
 project(JSONJay
     VERSION ${SANITIZED_VERSION}
     DESCRIPTION "A simple Serialization Library for C++ (mainly JSON)"
@@ -68,8 +64,6 @@ set(${PROJECT_NAME}_SOURCES
     source/StreamWritinator.cpp
     source/FileStreamReadinator.cpp
     source/FileStreamWritinator.cpp
-    source/BufferStreamReadinator.cpp
-    source/BufferStreamWritinator.cpp
     source/BufferStreamReadinator.cpp
     source/BufferStreamWritinator.cpp
     source/List.cpp
