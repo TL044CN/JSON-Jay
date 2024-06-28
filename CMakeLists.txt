@@ -3,12 +3,14 @@ set(CMAKE_CXX_STANDARD 20)
 set(CXX_STANDARD_REQUIRED ON)
 
 # find out wether this project is a submodule or not
+# find out wether this project is a submodule or not
 if(DEFINED PROJECT_NAME AND NOT "${PROJECT_NAME}" STREQUAL "")
     set(IS_SUBMODULE ON)
 else()
     set(IS_SUBMODULE OFF)
 endif()
 
+# get the version from git
 # get the version from git
 find_package(Git)
 if(GIT_FOUND)
@@ -66,6 +68,8 @@ set(${PROJECT_NAME}_SOURCES
     source/StreamWritinator.cpp
     source/FileStreamReadinator.cpp
     source/FileStreamWritinator.cpp
+    source/BufferStreamReadinator.cpp
+    source/BufferStreamWritinator.cpp
     source/BufferStreamReadinator.cpp
     source/BufferStreamWritinator.cpp
     source/List.cpp
