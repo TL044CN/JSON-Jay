@@ -34,41 +34,38 @@ else()
     set(GIT_TAG_VERSION "1.0.0")
 endif()
 
+string(REGEX REPLACE "[^0-9.]" "" SANITIZED_VERSION "${GIT_TAG_VERSION}")
+
 project(JSONJay
-    VERSION ${GIT_TAG_VERSION}
+    VERSION ${SANITIZED_VERSION}
     DESCRIPTION "A simple Serialization Library for C++ (mainly JSON)"
     LANGUAGES CXX
 )
 
 if(IS_SUBMODULE)
-    message("Building ${PROJECT_NAME} version ${PROJECT_VERSION} as Submodule")
+    set(${PROJECT_NAME}_BUILD_SHARED OFF CACHE BOOL "Build as Shared Library")
+    set(${PROJECT_NAME}_BUILD_TESTS OFF CACHE BOOL "Build Tests")
+    set(${PROJECT_NAME}_BUILD_DOCS OFF CACHE BOOL "Build Documentation")
 else()
-    message("Building ${PROJECT_NAME} version ${PROJECT_VERSION}")
+    set(${PROJECT_NAME}_BUILD_SHARED ON CACHE BOOL "Build as Shared Library")
+    set(${PROJECT_NAME}_BUILD_TESTS ON CACHE BOOL "Build Tests")
+    set(${PROJECT_NAME}_BUILD_DOCS ON CACHE BOOL "Build Documentation")
 endif()
 
-find_program(LCOV lcov)
-find_program(GENHTML genhtml)
 
-#find correct coverage system
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    find_program(GCOV gcov)
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    find_program(GCOV llvm-cov)
+message(STATUS "========>${PROJECT_NAME}<========>>")
+message(STATUS "Version:      ${PROJECT_VERSION}")
+message(STATUS "Git Tag:      ${GIT_TAG_VERSION}")
+if(${PROJECT_NAME}_BUILD_SHARED)
+    message(STATUS "Library Type: Shared")
+else()
+    message(STATUS "Library Type: Static")
 endif()
+if(IS_SUBMODULE)
+    message(STATUS "Build as Submodule")
+endif()
+message(STATUS "<<========>${PROJECT_NAME}<========")
 
-if(NOT IS_SUBMODULE)
-    find_package(Doxygen)
-    if(DOXYGEN_FOUND)
-        add_custom_target(documentation
-            COMMAND "doxygen"
-            WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
-            COMMENT "Generating Doxygen Documentation"
-            VERBARIM
-        )
-    else()
-        message("Doxygen required to build Doxygen Documentation")
-    endif()
-endif()
 
 set(${PROJECT_NAME}_SOURCES
     source/Common.cpp
@@ -76,6 +73,8 @@ set(${PROJECT_NAME}_SOURCES
     source/StreamWritinator.cpp
     source/FileStreamReadinator.cpp
     source/FileStreamWritinator.cpp
+    source/BufferStreamReadinator.cpp
+    source/BufferStreamWritinator.cpp
     source/List.cpp
     source/Object.cpp
 )
@@ -118,8 +117,32 @@ install(EXPORT ${PROJECT_NAME}Targets
     DESTINATION lib/cmake/${PROJECT_NAME}
 )
 
+if(${PROJECT_NAME}_BUILD_DOCS)
+find_package(Doxygen)
+    if(DOXYGEN_FOUND)
+        add_custom_target(documentation
+            COMMAND "doxygen"
+            WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
+            COMMENT "Generating Doxygen Documentation"
+            VERBARIM
+        )
+    else()
+        message("Doxygen required to build Doxygen Documentation")
+    endif()
+endif()
+
+if(${PROJECT_NAME}_BUILD_TESTS)
+    find_program(LCOV lcov)
+    find_program(GENHTML genhtml)
+
+    #find correct coverage system
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+        find_program(GCOV gcov)
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        find_program(GCOV llvm-cov)
+    endif()
+    
 #prepare for coverage report
-if(NOT IS_SUBMODULE)
     if(GCOV AND LCOV AND GENHTML)
         if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
             target_compile_options(${PROJECT_NAME} PRIVATE -fprofile-arcs -ftest-coverage)
@@ -137,12 +160,8 @@ if(NOT IS_SUBMODULE)
             message("genhtml not found. No coverage report will be generated.")
         endif()
     endif()
-endif()
-
-set(${PROJECT_NAME}_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-# tests:
-if(NOT IS_SUBMODULE)
+        
+    # tests:
     enable_testing()
     add_subdirectory(tests)
 endif()
