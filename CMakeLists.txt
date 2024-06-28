@@ -3,12 +3,14 @@ set(CMAKE_CXX_STANDARD 20)
 set(CXX_STANDARD_REQUIRED ON)
 
 # find out wether this project is a submodule or not
+# find out wether this project is a submodule or not
 if(DEFINED PROJECT_NAME AND NOT "${PROJECT_NAME}" STREQUAL "")
     set(IS_SUBMODULE ON)
 else()
     set(IS_SUBMODULE OFF)
 endif()
 
+# get the version from git
 # get the version from git
 find_package(Git)
 if(GIT_FOUND)
@@ -40,7 +42,12 @@ endif()
 string(REGEX REPLACE "[^0-9.]" "" SANITIZED_VERSION "${GIT_TAG_VERSION}")
 
 # declare the project
+# sanitize the version to prevent cmake errors
+string(REGEX REPLACE "[^0-9.]" "" SANITIZED_VERSION "${GIT_TAG_VERSION}")
+
+# declare the project
 project(JSONJay
+    VERSION ${SANITIZED_VERSION}
     VERSION ${SANITIZED_VERSION}
     DESCRIPTION "A simple Serialization Library for C++ (mainly JSON)"
     LANGUAGES CXX
@@ -68,6 +75,8 @@ set(${PROJECT_NAME}_SOURCES
     source/FileStreamWritinator.cpp
     source/BufferStreamReadinator.cpp
     source/BufferStreamWritinator.cpp
+    source/BufferStreamReadinator.cpp
+    source/BufferStreamWritinator.cpp
     source/List.cpp
     source/Object.cpp
 )
@@ -80,6 +89,7 @@ else()
 endif()
 
 # add the include directories
+# add the include directories
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         $<INSTALL_INTERFACE:include>
@@ -87,12 +97,14 @@ target_include_directories(${PROJECT_NAME}
 )
 
 # set the project properties
+# set the project properties
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
     PUBLIC_HEADER "include/${PROJECT_NAME}.hpp"
 )
 
+# set the export targets
 # set the export targets
 install(TARGETS ${PROJECT_NAME}
     EXPORT ${PROJECT_NAME}Targets
@@ -104,11 +116,13 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 # install the headers
+# install the headers
 install(
     DIRECTORY include/
     DESTINATION include
 )
 
+# install the cmake config files
 # install the cmake config files
 install(EXPORT ${PROJECT_NAME}Targets
     FILE ${PROJECT_NAME}Targets.cmake
