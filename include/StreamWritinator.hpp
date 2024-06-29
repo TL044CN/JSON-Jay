@@ -126,7 +126,7 @@ public:
     template<typename T>
         requires IsSerializable<T>
     void writeSerializable(const T& data) {
-        T::serialize(*this, data);
+        T::serialize(this, data);
     }
 
     /**

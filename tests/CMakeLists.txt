@@ -13,12 +13,11 @@ if(NOT catch2_POPULATED)
   add_subdirectory(${catch2_SOURCE_DIR} ${catch2_BINARY_DIR})
 endif()
 
+file(GLOB TEST_SOURCES "test_*.cpp")
+
 # Add tests
 add_executable(${PROJECT_NAME}_tests
-  test_main.cpp
-  test_Exceptions.cpp
-  test_List.cpp
-  test_Object.cpp
+  ${TEST_SOURCES}
 )
 
 # Link required libraries
