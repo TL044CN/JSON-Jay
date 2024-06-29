@@ -42,8 +42,21 @@ private:
     std::vector<data_t> mData;
 
 public:
+    /**
+     * @brief Construct a new List object
+     */
     List() = default;
+
+    /**
+     * @brief Construct a new List object
+     *
+     * @param list the list to copy
+     */
     List(List&&) = default;
+
+    /**
+     * @brief Destroy the List object
+     */
     ~List();
 
 private:
@@ -65,10 +78,34 @@ private:
         using iterator_category = std::forward_iterator_tag;
         using value_type = std::pair<data_t&, BaseDataType>;
 
+        /**
+         * @brief Construct a new Iterator object
+         *
+         * @param it the iterator to copy
+         */
         explicit Iterator(std::vector<data_t>::iterator it);
 
+        /**
+         * @brief Increment the iterator
+         *
+         * @return Iterator& the iterator
+         */
         Iterator& operator++();
+
+        /**
+         * @brief Compare two iterators
+         *
+         * @param other the other iterator
+         * @return true if the iterators are equal
+         * @return false if the iterators are not equal
+         */
         bool operator!=(const Iterator& other) const;
+
+        /**
+         * @brief Dereference the iterator
+         *
+         * @return value_type the value of the iterator
+         */
         value_type operator*();
     };
 
@@ -131,8 +168,9 @@ public:
     /**
      * @brief Access an element of the list
      *
+     * @tparam T the type of the element
      * @param index the index of the element
-     * @return const data_t& the element
+     * @return T& the element
      */
     template<typename T>
         requires IsValidDataType<T> || IsValidPtrDataType<T>
