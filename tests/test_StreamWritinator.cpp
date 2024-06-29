@@ -433,9 +433,6 @@ TEST_CASE("StreamWritinator writeBuffer", "[StreamWritinator]") {
                 };
 
                 auto result = stream.getBuffer();
-                for(auto num : result){
-                    std::cout << std::hex << (int)num << " ";
-                }
                 REQUIRE(result.size() == expectedSize);
                 REQUIRE(result == expected);
             }

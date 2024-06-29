@@ -136,7 +136,7 @@ public:
      */
     template<typename T>
         requires IsValidDataType<T> || IsValidPtrDataType<T>
-    T & at(size_t index) {
+    T& at(size_t index) {
         check_index(index);
         if constexpr ( IsValidPtrDataType<T> ) {
             if ( !std::holds_alternative<T*>(mData[index]) )

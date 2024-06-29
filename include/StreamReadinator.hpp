@@ -132,7 +132,7 @@ public:
     template<typename T>
         requires IsDeserializable<T>
     void readDeserializable(T& t) {
-        T::deserialize(*this, t);
+        T::deserialize(this, t);
     }
 
     /**
@@ -158,14 +158,16 @@ public:
                 readString(key);
             else 
                 readDeserializable(key);
-
+            
+            V value;
             if constexpr (std::is_trivial_v<V>)
-                readRaw<V>(map[key]);
+                readRaw(value);
             else if constexpr (std::is_same_v<V, std::string>)
-                readString(map[key]);
+                readString(value);
             else
-                readDeserializable<V>(map[key]);
-
+                readDeserializable(value);
+            
+            map[key] = value;
         }
     }
 
