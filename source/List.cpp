@@ -23,14 +23,8 @@ List::Iterator& List::Iterator::operator++() {
     return *this;
 }
 
-List::Iterator List::Iterator::operator++(int) {
-    Iterator it = *this;
-    ++mIt;
-    return it;
-}
-
-bool List::Iterator::operator==(const Iterator& other) {
-    return mIt == other.mIt;
+bool List::Iterator::operator!=(const Iterator& other) {
+    return mIt != other.mIt;
 }
 
 List::Iterator::value_type List::Iterator::operator*() {

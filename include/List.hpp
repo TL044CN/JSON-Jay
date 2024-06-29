@@ -68,8 +68,7 @@ private:
         explicit Iterator(std::vector<data_t>::iterator it);
 
         Iterator& operator++();
-        Iterator operator++(int);
-        bool operator==(const Iterator& other);
+        bool operator!=(const Iterator& other);
         value_type operator*();
     };
 
@@ -111,6 +110,15 @@ public:
         requires IsValidPtrDataType<T>
     void push_back(T&& value) {
         mData.push_back(new T(std::move(value)));
+    }
+
+    /**
+     * @brief Push a string to the list
+     *
+     * @param value the string to push
+     */
+    void push_back(const char* value) {
+        mData.push_back(std::string(value));
     }
 
     /**
