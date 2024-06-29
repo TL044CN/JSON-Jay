@@ -70,6 +70,21 @@ private:
 public:
 
     /**
+     * @brief weather the object is empty
+     * 
+     * @return true object is empty
+     * @return false object is not empty
+     */
+    bool empty() const;
+
+    /**
+     * @brief Get the size of the object
+     *
+     * @return uint64_t the size of the object
+     */
+    size_t size() const;
+
+    /**
      * @brief Get the value at a key
      *
      * @tparam T the type of the value
@@ -106,6 +121,19 @@ public:
     }
 
     /**
+     * @brief Get the value at a key
+     *
+     * @tparam T the type of the value
+     * @param key the key
+     * @return T& the value
+     */
+    template<typename T>
+        requires IsValidDataType<T> || IsValidPtrDataType<T>
+    T& at(const char* key) {
+        return at<T>(std::string(key));
+    }
+
+    /**
      * @brief Set a value
      *
      * @tparam T the type of the value
@@ -127,6 +155,17 @@ public:
      * @param key the key
      * @param value the value
      */
+    void set(const char* key, const char* value) {
+        set(std::string(key), std::string(value));
+    }
+
+    /**
+     * @brief Set a value
+     *
+     * @tparam T the type of the value
+     * @param key the key
+     * @param value the value
+     */
     template<typename T>
         requires IsValidPtrDataType<T>
     void set(const std::string& key, T&& value) {
@@ -134,6 +173,8 @@ public:
         if ( check_key_exists(key) ) at<T*>(key) = value;
         else mData.insert({ key, data_t(new T(value)) });
     }
+
+    void erase(const std::string& key);
 
     /**
      * @brief Get the type of an element
@@ -143,17 +184,6 @@ public:
      */
     inline BaseDataType get_type(const std::string& key) const {
         check_key_exists(key, true);
-        auto visitor = [](auto&& arg) -> BaseDataType {
-            using T = std::decay_t<decltype(arg)>;
-            if      constexpr ( std::is_same_v<T, std::string> )    return BaseDataType::STRING;
-            else if constexpr ( std::is_same_v<T, int> )            return BaseDataType::INT;
-            else if constexpr ( std::is_same_v<T, double> )         return BaseDataType::DOUBLE;
-            else if constexpr ( std::is_same_v<T, bool> )           return BaseDataType::BOOL;
-            else if constexpr ( std::is_same_v<T, Object*> )        return BaseDataType::OBJECT;
-            else if constexpr ( std::is_same_v<T, List*> )          return BaseDataType::LIST;
-            else if constexpr ( std::is_same_v<T, std::monostate> ) return BaseDataType::NONE;
-            throw InvalidTypeException("Invalid type");
-        };
 
         // This is a hack to remove the const qualifier.
         // This is safe because we are not modifying the data.

@@ -32,6 +32,22 @@ bool Object::check_key_exists(const std::string& key, bool bThrow, bool bThrowCo
     return mData.find(key) != mData.end();
 }
 
+
+bool Object::empty() const {
+    return mData.empty();
+}
+
+size_t Object::size() const {
+    return mData.size();
+}
+
+void Object::erase(const std::string& key) {
+    check_key_exists(key, true);
+    if ( std::holds_alternative<Object*>(mData[key]) ) delete std::get<Object*>(mData[key]);
+    if ( std::holds_alternative<List*>(mData[key]) ) delete std::get<List*>(mData[key]);
+    mData.erase(key);
+}
+
 std::string& Object::get_string(const std::string& key) {
     return at<std::string>(key);
 }

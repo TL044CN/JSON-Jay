@@ -54,7 +54,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh """
-                cmake -B build/ -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+                cmake -B build/ -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DJSONJay_BUILD_DOCS=OFF
                 cmake --build build/ --config=${BUILD_TYPE} -j
                 """
             }

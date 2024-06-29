@@ -16,6 +16,9 @@ endif()
 # Add tests
 add_executable(${PROJECT_NAME}_tests
   test_main.cpp
+  test_Exceptions.cpp
+  test_List.cpp
+  test_Object.cpp
 )
 
 # Link required libraries
