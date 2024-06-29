@@ -23,7 +23,7 @@ List::Iterator& List::Iterator::operator++() {
     return *this;
 }
 
-bool List::Iterator::operator!=(const Iterator& other) {
+bool List::Iterator::operator!=(const Iterator& other) const {
     return mIt != other.mIt;
 }
 

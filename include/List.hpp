@@ -68,7 +68,7 @@ private:
         explicit Iterator(std::vector<data_t>::iterator it);
 
         Iterator& operator++();
-        bool operator!=(const Iterator& other);
+        bool operator!=(const Iterator& other) const;
         value_type operator*();
     };
 
