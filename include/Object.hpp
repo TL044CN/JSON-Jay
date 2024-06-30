@@ -60,7 +60,7 @@ public:
      */
     virtual ~Object();
 
-private:
+public:
     /**
      * @brief Iterator Class of the Object
      * @details Iterates over the key-value pairs of the object and additionally
@@ -99,13 +99,20 @@ private:
 
         /**
          * @brief Dereference the iterator
-         *
+         * @details Returns a tuple containing the key, the value and the type
+         *          of the value.<br>
+         *          The type is determined using JSONJay::get_type function.<br>
+         *          The value is a reference to the actual value in the object.<br>
+         *          This means that the value can be modified using the iterator.<br>
+         *          The type is a BaseDataType enum value.<br>
+         *          The key is a string. 
          * @return value_type the value of the iterator
          */
         value_type operator*();
 
     };
 
+private:
     /**
      * @brief check if a key is valid or throw on invalid key
      *
@@ -125,7 +132,6 @@ private:
     bool check_key_exists(const std::string& key, bool bThrow = false, bool bThrowCollision = false) const;
 
 public:
-
     /**
      * @brief Get the begin iterator of the list
      *
