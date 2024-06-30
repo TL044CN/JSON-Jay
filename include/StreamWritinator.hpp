@@ -148,7 +148,7 @@ public:
      */
     template<typename K, typename V>
         requires (std::is_trivial_v<K> || IsSerializable<K> || std::is_same_v<K, std::string>) &&
-                 (std::is_trivial_v<V> || IsSerializable<V> || std::is_same_v<K, std::string>)
+                 (std::is_trivial_v<V> || IsSerializable<V> || std::is_same_v<V, std::string>)
         void writeMap(const std::map<K, V>& map, bool writeSize = true) {
         if ( writeSize )
             writeRaw<uint32_t>(map.size());
@@ -180,7 +180,7 @@ public:
      */
     template<typename K, typename V>
         requires (std::is_trivial_v<K> || IsSerializable<K> || std::is_same_v<K, std::string>) &&
-                 (std::is_trivial_v<V> || IsSerializable<V> || std::is_same_v<K, std::string>)
+                 (std::is_trivial_v<V> || IsSerializable<V> || std::is_same_v<V, std::string>)
     void writeMap(const std::unordered_map<K, V>& map, bool writeSize = true) {
         if ( writeSize )
             writeRaw<uint32_t>(map.size());
