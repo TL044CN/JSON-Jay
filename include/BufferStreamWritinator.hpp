@@ -75,6 +75,13 @@ public:
      */
     const std::vector<char>& getBuffer() const;
 
+    /**
+     * @brief returns the buffer as a string
+     *
+     * @return const std::string the buffer as a string
+     */
+    const std::string_view getString() const;
+
 };
 
 } // namespace JSONJay

@@ -32,4 +32,8 @@ const std::vector<char>& BufferStreamWritinator::getBuffer() const {
     return buffer;
 }
 
+const std::string_view BufferStreamWritinator::getString() const {
+    return std::string_view(buffer.begin(), buffer.end());
+}
+
 } // namespace JSONJay

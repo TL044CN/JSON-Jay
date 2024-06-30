@@ -4,7 +4,7 @@ namespace JSONJay {
 
 void StreamWritinator::writeBuffer(const std::vector<char>& buffer, bool writeSize) {
     if (writeSize) {
-        size_t bufferSize = buffer.size();
+        uint64_t bufferSize = buffer.size();
         writeData(reinterpret_cast<const char*>(&bufferSize), sizeof(bufferSize));
     }
     writeData(buffer.data(), buffer.size());

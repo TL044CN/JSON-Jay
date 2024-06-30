@@ -19,11 +19,12 @@ project(JSONJay
     LANGUAGES CXX
 )
 
+# set the build options
 option(${PROJECT_NAME}_BUILD_SHARED "Build Shared Library" OFF)
 option(${PROJECT_NAME}_BUILD_TESTS "Build Tests" ON)
 option(${PROJECT_NAME}_BUILD_DOCS "Build Documentation" ON)
 
-# set the build options
+# modify the build options if this is a submodule
 if(IS_SUBMODULE)
     set(${PROJECT_NAME}_BUILD_TESTS OFF CACHE BOOL "Build Tests")
     set(${PROJECT_NAME}_BUILD_DOCS OFF CACHE BOOL "Build Documentation")
