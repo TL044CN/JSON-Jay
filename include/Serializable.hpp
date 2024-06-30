@@ -20,6 +20,11 @@ namespace JSONJay {
  * @details The Serializable class is an abstract base class for serializing
  *          and deserializing objects. The class provides a serialize and
  *          deserialize method that must be implemented by the derived class.
+ * @note This class is only a helper class. It can be used to mark another class
+ *       as serializable, but it is not required to use this class to make a class
+ *       writable and readable using the JSONJay library.<br>
+ *       for that, the class must only implement the static serialize and deserialize methods
+ *       with the correct signature according to the IsSerializable and IsDeserializable concepts.
  */
 template <typename T>
 class Serializable {

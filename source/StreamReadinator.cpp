@@ -1,27 +1,58 @@
 #include "StreamReadinator.hpp"
 
+#include <deque>
+
 namespace JSONJay {
 
-bool StreamReadinator::readUntil(std::vector<char>& data, char delim) {
+bool StreamReadinator::readUntil(std::vector<char>& data, char delim, bool includeDelim) {
     char c;
     while (readData(&c, 1)) {
         data.push_back(c);
-        if (c == delim) {
+        if(c != delim) continue;
+
+        if(includeDelim) return true;
+
+        data.pop_back();
+        setStreamPosition(getStreamPosition() - 1);
+        return true;
+    }
+    return false;
+}
+
+bool StreamReadinator::readUntil(std::vector<char>& data, const std::string& delim, bool includeDelim) {
+    std::vector<char> buffer;
+    if(!readBuffer(data, delim.size())){
+        return false;
+    }
+
+    char c;
+    while(readData(&c, 1)){
+        data.push_back(c);
+        if(std::equal(data.end() - delim.size(), data.end(), delim.begin(), delim.end())){
+            if(includeDelim) return true;            
+
+            data.erase(data.end() - delim.size(), data.end());
+            setStreamPosition(getStreamPosition() - delim.size());
             return true;
         }
     }
     return false;
 }
 
-bool StreamReadinator::readUntil(std::vector<char>& data, std::string delim) {
-    std::vector<char> buffer(delim.size());
-    while (readData(buffer.data(), buffer.size())) {
-        data.insert(data.end(), buffer.begin(), buffer.end());
-        if (data.size() >= delim.size()) {
-            if (std::equal(delim.begin(), delim.end(), data.end() - delim.size())) {
-                return true;
-            }
-        }
+bool StreamReadinator::readUntil(std::string& data, char delim, bool includeDelim) {
+    std::vector<char> buffer;
+    if (readUntil(buffer, delim, includeDelim)) {
+        data = std::string(buffer.begin(), buffer.end());
+        return true;
+    }
+    return false;
+}
+
+bool StreamReadinator::readUntil(std::string& data, const std::string& delim, bool includeDelim) {
+    std::vector<char> buffer;
+    if (readUntil(buffer, delim, includeDelim)) {
+        data = std::string(buffer.begin(), buffer.end());
+        return true;
     }
     return false;
 }

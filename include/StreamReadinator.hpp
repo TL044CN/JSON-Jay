@@ -69,16 +69,36 @@ public:
      *
      * @param data the buffer to read into
      * @param delim the delimiter to read until
+     * @param includeDelim weather to include the delimiter in the buffer
      */
-    virtual bool readUntil(std::vector<char>& data, char delim);
+    virtual bool readUntil(std::vector<char>& data, char delim, bool includeDelim = false);
 
     /**
      * @brief reads data from the stream until a delimiter is found
      *
      * @param data the buffer to read into
      * @param delim the delimiter to read until
+     * @param includeDelim weather to include the delimiter in the buffer
      */
-    virtual bool readUntil(std::vector<char>& data, std::string delim);
+    virtual bool readUntil(std::vector<char>& data, const std::string& delim, bool includeDelim = false);
+
+    /**
+     * @brief reads data from the stream until a delimiter is found
+     *
+     * @param data the buffer to read into
+     * @param delim the delimiter to read until
+     * @param includeDelim weather to include the delimiter in the buffer
+     */
+    virtual bool readUntil(std::string& data, char delim, bool includeDelim = false);
+
+    /**
+     * @brief reads data from the stream until a delimiter is found
+     *
+     * @param data the buffer to read into
+     * @param delim the delimiter to read until
+     * @param includeDelim weather to include the delimiter in the buffer
+     */
+    virtual bool readUntil(std::string& data, const std::string& delim, bool includeDelim = false);
 
     /**
      * @brief returns weather the stream is good

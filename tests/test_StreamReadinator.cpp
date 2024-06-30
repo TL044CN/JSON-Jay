@@ -62,6 +62,7 @@ public:
 };
 
 TEST_CASE("Readinator") {
+
     GIVEN("A Readinator object") {
         ReadinatorTest readinator;
         std::vector<uint8_t> data = {42, 0, 0, 0};
@@ -172,6 +173,57 @@ TEST_CASE("Readinator") {
             REQUIRE(map[3].mDouble == 1234.5678);
         }
     }
+
+    SECTION("Reading strings until Delimiter"){
+        GIVEN("A Readinator object containing some test data and a string"){
+            ReadinatorTest readinator;
+            std::vector<uint8_t> data = {
+                'H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!', 0
+            };
+            readinator.setData(data);
+
+            THEN("A string can be read until a delimiter excluding the delimiter") {
+                std::string s;
+                readinator.readUntil(s, ',');
+                REQUIRE(s == "Hello");
+                CHECK(readinator.getStreamPosition() == 5);
+                readinator.readUntil(s, '!');
+                REQUIRE(s == ", World");
+                CHECK(readinator.getStreamPosition() == 12);
+            }
+
+            AND_THEN("A string can be read until a delimiter string excluding the delimiter") {
+                std::string s;
+                readinator.readUntil(s, ", ");
+                REQUIRE(s == "Hello");
+                CHECK(readinator.getStreamPosition() == 5);
+                readinator.readUntil(s, "!");
+                REQUIRE(s == ", World");
+                CHECK(readinator.getStreamPosition() == 12);
+            }
+
+            AND_THEN("A string can be read until a delimiter including the delimiter") {
+                std::string s;
+                readinator.readUntil(s, ',', true);
+                REQUIRE(s == "Hello,");
+                CHECK(readinator.getStreamPosition() == 6);
+                readinator.readUntil(s, '!', true);
+                REQUIRE(s == " World!");
+                CHECK(readinator.getStreamPosition() == 13);
+            }
+
+            AND_THEN("A string can be read until a delimiter string including the delimiter") {
+                std::string s;
+                readinator.readUntil(s, ", ", true);
+                REQUIRE(s == "Hello, ");
+                CHECK(readinator.getStreamPosition() == 7);
+                readinator.readUntil(s, "!", true);
+                REQUIRE(s == "World!");
+                CHECK(readinator.getStreamPosition() == 13);
+            }
+        }
+    }
+
 }
 
 
