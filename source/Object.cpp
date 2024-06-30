@@ -32,6 +32,30 @@ bool Object::check_key_exists(const std::string& key, bool bThrow, bool bThrowCo
     return mData.find(key) != mData.end();
 }
 
+Object::Iterator::Iterator(std::map<std::string, data_t>::iterator it) : mIt(it) {}
+
+Object::Iterator& Object::Iterator::operator++() {
+    ++mIt;
+    return *this;
+}
+
+bool Object::Iterator::operator!=(const Iterator& other) const {
+    return mIt != other.mIt;
+}
+
+Object::Iterator::value_type Object::Iterator::operator*() {
+    auto& [key, value] = *mIt;
+    return {key, value, JSONJay::get_type(value)};
+}
+
+
+Object::Iterator Object::begin() {
+    return Iterator(mData.begin());
+}
+
+Object::Iterator Object::end() {
+    return Iterator(mData.end());
+}
 
 bool Object::empty() const {
     return mData.empty();

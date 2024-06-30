@@ -43,12 +43,69 @@ private:
     std::map<std::string, data_t> mData;
 
 public:
+    /**
+     * @brief Construct a new Object object
+     */
     Object() = default;
+
+    /**
+     * @brief Construct a new Object object
+     *
+     * @param object the object to copy
+     */
     Object(Object&&) = default;
 
+    /**
+     * @brief Destroy the Object object
+     */
     virtual ~Object();
 
 private:
+    /**
+     * @brief Iterator Class of the Object
+     * @details Iterates over the key-value pairs of the object and additionally
+     *          returns the type of the value
+     */
+    class Iterator {
+    private:
+        std::map<std::string,data_t>::iterator mIt;                         ///< The base iterator
+
+    public:
+        using iterator_category = std::forward_iterator_tag;                ///< The iterator category
+        using value_type = std::tuple<std::string, data_t&, BaseDataType>;  ///< The value type
+
+        /**
+         * @brief Construct a new Iterator object
+         *
+         * @param it the iterator to copy
+         */
+        explicit Iterator(std::map<std::string,data_t>::iterator it);
+
+        /**
+         * @brief Increment the iterator
+         *
+         * @return Iterator& the iterator
+         */
+        Iterator& operator++();
+
+        /**
+         * @brief Compare two iterators
+         *
+         * @param other the other iterator
+         * @return true if the iterators are equal
+         * @return false if the iterators are not equal
+         */
+        bool operator!=(const Iterator& other) const;
+
+        /**
+         * @brief Dereference the iterator
+         *
+         * @return value_type the value of the iterator
+         */
+        value_type operator*();
+
+    };
+
     /**
      * @brief check if a key is valid or throw on invalid key
      *
@@ -68,6 +125,21 @@ private:
     bool check_key_exists(const std::string& key, bool bThrow = false, bool bThrowCollision = false) const;
 
 public:
+
+    /**
+     * @brief Get the begin iterator of the list
+     *
+     * @return Iterator the begin iterator
+     */
+    Iterator begin();
+
+    /**
+     * @brief Get the end iterator of the list
+     *
+     * @return Iterator the end iterator
+     */
+    Iterator end();
+
 
     /**
      * @brief weather the object is empty

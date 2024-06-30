@@ -157,4 +157,39 @@ TEST_CASE("Object operations", "[Object]") {
             }
         }
     }
+
+    SECTION("Iterating over elements") {
+        GIVEN("An object with elements") {
+            JSONJay::Object obj;
+            obj.set("key1", 1);
+            obj.set("key2", 3);
+            obj.set("key3", 3);
+            obj.set("key8", 7);
+
+            WHEN("Iterating over the elements") {
+                std::vector<std::string> keys;
+                std::vector<int> values;
+                for ( auto [key, value, type] : obj ) {
+                    REQUIRE(type == JSONJay::BaseDataType::INT);
+                    keys.push_back(key);
+                    values.push_back(std::get<int>(value));
+                }
+
+                THEN("The keys should be correct") {
+                    REQUIRE(keys.size() == 4);
+                    REQUIRE(keys[0] == "key1");
+                    REQUIRE(keys[1] == "key2");
+                    REQUIRE(keys[2] == "key3");
+                    REQUIRE(keys[3] == "key8");
+                }
+                AND_THEN("The values should be correct") {
+                    REQUIRE(values.size() == 4);
+                    REQUIRE(values[0] == 1);
+                    REQUIRE(values[1] == 3);
+                    REQUIRE(values[2] == 3);
+                    REQUIRE(values[3] == 7);
+                }
+            }
+        }
+    }
 }
