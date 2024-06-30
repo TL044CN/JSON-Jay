@@ -79,7 +79,9 @@ public:
 
     /**
      * @brief writes a buffer to the stream
-     *
+     * @note when not writing the size of the buffer, reading it with a
+     *       StreamReadinator requires the size to be known (e.g. through a header)
+     * 
      * @param buffer the buffer to write
      * @param writeSize whether to write the size of the buffer
      */
@@ -94,17 +96,23 @@ public:
 
     /**
      * @brief writes a string to the stream
-     *
+     * @note when not writing the size of the string, reading it with a
+     *       StreamReadinator requires the size to be known (e.g. through a header)
+     * 
      * @param str the string to write
+     * @param writeSize whether to write the size of the string
      */
-    void writeString(const std::string& str);
+    void writeString(const std::string& str, bool writeSize = true);
 
     /**
      * @brief writes a string to the stream
-     *
+     * @note when not writing the size of the string, reading it with a
+     *       StreamReadinator requires the size to be known (e.g. through a header)
+     * 
      * @param str the string to write
+     * @param writeSize whether to write the size of the string
      */
-    void writeString(std::string_view str);
+    void writeString(std::string_view str, bool writeSize = true);
 
     /**
      * @brief writes a raw data to the stream

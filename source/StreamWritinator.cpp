@@ -15,12 +15,12 @@ void StreamWritinator::writeZero(uint64_t size) {
     writeData(zero.data(), zero.size());
 }
 
-void StreamWritinator::writeString(const std::string& str) {
-    writeBuffer(std::vector<char>(str.begin(), str.end()), true);
+void StreamWritinator::writeString(const std::string& str, bool writeSize) {
+    writeBuffer(std::vector<char>(str.begin(), str.end()), writeSize);
 }
 
-void StreamWritinator::writeString(std::string_view str) {
-    writeBuffer(std::vector<char>(str.begin(), str.end()), true);
+void StreamWritinator::writeString(std::string_view str, bool writeSize) {
+    writeBuffer(std::vector<char>(str.begin(), str.end()), writeSize);
 }
 
 } // namespace JSONJay
