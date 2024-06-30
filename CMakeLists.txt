@@ -10,34 +10,7 @@ else()
 endif()
 
 # get the version from git
-find_package(Git)
-if(GIT_FOUND)
-    execute_process(
-        COMMAND ${GIT_EXECUTABLE} describe --tags --abbrev=0
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        OUTPUT_VARIABLE GIT_TAG_VERSION
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-
-    option(GIT_SUBMODULE "Check submodules during build" ON)
-    if(GIT_SUBMODULE)
-        message(STATUS "Submodule update")
-        execute_process(
-            COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-            RESULT_VARIABLE GIT_SUBMODULE_RESULT
-        )
-        if(NOT GIT_SUBMODULE_RESULT EQUAL "0")
-            message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMODULE_RESULT}")
-        endif()
-    endif()
-
-else()
-    set(GIT_TAG_VERSION "1.0.0")
-endif()
-
-# sanitize the version to prevent cmake errors
-string(REGEX REPLACE "[^0-9.]" "" SANITIZED_VERSION "${GIT_TAG_VERSION}")
+include(CMakeFiles/HandleGit.cmake)
 
 # declare the project
 project(JSONJay
@@ -46,38 +19,17 @@ project(JSONJay
     LANGUAGES CXX
 )
 
+option(${PROJECT_NAME}_BUILD_SHARED "Build Shared Library" OFF)
+option(${PROJECT_NAME}_BUILD_TESTS "Build Tests" ON)
+option(${PROJECT_NAME}_BUILD_DOCS "Build Documentation" ON)
+
 # set the build options
 if(IS_SUBMODULE)
     set(${PROJECT_NAME}_BUILD_TESTS OFF CACHE BOOL "Build Tests")
     set(${PROJECT_NAME}_BUILD_DOCS OFF CACHE BOOL "Build Documentation")
-else()
-    set(${PROJECT_NAME}_BUILD_TESTS ON CACHE BOOL "Build Tests")
-    set(${PROJECT_NAME}_BUILD_DOCS ON CACHE BOOL "Build Documentation")
 endif()
 
-# print a message when a condition is true
-function(print_conditional_status CONDITION MSG_ON MSG_OFF)
-    if(${CONDITION})
-        message(STATUS ${MSG_ON})
-    else()
-        message(STATUS ${MSG_OFF})
-    endif()
-endfunction()
-
-# print the project information
-message(STATUS "==========|${PROJECT_NAME}|=======>>")
-message(STATUS "Version:      ${PROJECT_VERSION}")
-message(STATUS "Git Tag:      ${GIT_TAG_VERSION}")
-print_conditional_status(IS_SUBMODULE "Is Submodule: Yes" "Is Submodule: No")
-print_conditional_status(${PROJECT_NAME}_BUILD_SHARED
-    "Library Type: Shared"
-    "Library Type: Static"
-)
-print_conditional_status(${PROJECT_NAME}_BUILD_TESTS
-    "Build Tests:  Yes" 
-    "Build Tests:  No"
-)
-message(STATUS "<<========|${PROJECT_NAME}|=========")
+include(CMakeFiles/PrintInfo.cmake)
 
 # add the sources
 set(${PROJECT_NAME}_SOURCES
