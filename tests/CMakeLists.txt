@@ -13,6 +13,18 @@ if(NOT catch2_POPULATED)
   add_subdirectory(${catch2_SOURCE_DIR} ${catch2_BINARY_DIR})
 endif()
 
+FetchContent_Declare(
+  MockingBird
+  GIT_REPOSITORY https://github.com/TL044CN/MockingBird.git
+  GIT_TAG        1.0.6
+)
+
+FetchContent_GetProperties(MockingBird)
+if(NOT mockingbird_POPULATED)
+  FetchContent_Populate(MockingBird)
+  add_subdirectory(${mockingbird_SOURCE_DIR} ${mockingbird_BINARY_DIR})
+endif()
+
 file(GLOB TEST_SOURCES "test_*.cpp")
 
 # Add tests
@@ -24,6 +36,7 @@ add_executable(${PROJECT_NAME}_tests
 target_link_libraries(${PROJECT_NAME}_tests
     PRIVATE
         Catch2::Catch2
+        MockingBird
         ${PROJECT_NAME}
 )
 
